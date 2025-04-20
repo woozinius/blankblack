@@ -16,7 +16,7 @@ header {
   top: 0;
   left: 0;
   width: 100%;
-  padding: 30px 40px; /* ← 좌우 여백 추가 */
+  padding: 20px 30px; /* ← 좌우 여백 추가 */
   display: flex;
   justify-content: space-between;
   font-family: monospace;
@@ -44,11 +44,11 @@ footer {
   bottom: 0;
   left: 0;
   width: 100%;
-  padding: 30px 40px; /* ← 좌우 여백 추가 */
+  padding: 20px 30px; /* ← 좌우 여백 추가 */
   display: flex;
   justify-content: space-between;
   font-family: monospace;
-  font-size: 14px;
+  font-size: 13px;
   color: #000;
   z-index: 10;
   box-sizing: border-box; /* ← 패딩 포함한 사이즈 계산 */
@@ -78,7 +78,7 @@ main {
   align-items: center;
   text-decoration: none;
   color: #000;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .icon img {
