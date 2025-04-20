@@ -1,0 +1,103 @@
+/* style.css */
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  color: #000;
+  font-family: sans-serif;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* header와 footer 배치 */
+header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 30px 40px; /* ← 좌우 여백 추가 */
+  display: flex;
+  justify-content: space-between;
+  font-family: monospace;
+  font-size: 14px;
+  color: #000;
+  z-index: 10;
+  box-sizing: border-box; /* ← 패딩 포함한 사이즈 계산 */
+}
+
+.nav-right {
+  display: flex;
+  gap: 20px; /* ← 간격 조정 */
+}
+
+.nav-left a,
+.nav-right a {
+  color: #000;
+  text-decoration: none;
+  font-size: 14px;
+  font-family: monospace;
+}
+
+footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 30px 40px; /* ← 좌우 여백 추가 */
+  display: flex;
+  justify-content: space-between;
+  font-family: monospace;
+  font-size: 14px;
+  color: #000;
+  z-index: 10;
+  box-sizing: border-box; /* ← 패딩 포함한 사이즈 계산 */
+}
+
+header {
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+footer {
+  bottom: 0;
+  text-align: center;
+}
+
+main {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.icon {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: #000;
+  font-size: 14px;
+}
+
+.icon img {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 8px;
+}
+
+#todo {
+  top: 20%;
+  left: 30%;
+}
+
+#clock {
+  top: 40%;
+  left: 60%;
+}
+
+#viewer {
+  top: 70%;
+  left: 40%;
+}

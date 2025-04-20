@@ -2,17 +2,42 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="robots" content="noindex, nofollow">
   <title>blank.black</title>
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/safari-pinned-tab.png">
+  <link rel="icon" type="image/png" href="/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" href="/icons/favicon-16x16.png">
+  <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#000000">
   <link rel="stylesheet" href="style.css">
+  <meta name="robots" content="noindex, nofollow">
 </head>
 <body>
   <header>
-    <h1>blank.black</h1>
-    <p>I’m an software developer who builds maximum functionality into minimal design.</p>
-    <nav>
-      <a href="/projects/">Projects</a>
-    </nav>
+    <div class="nav-left"><a href="/">blank.black</a></div>
+    <div class="nav-center"><span id="time">00:00:00</span></div>
+    <div class="nav-right">
+    <a href="/">Notes</a>
+    <a href="/">Info</a>
+    </div>
   </header>
+  <main>
+    <a href="/projects/todo/" class="icon" id="todo">
+      <img src="/icons/todo.png" alt="To-Do Icon">
+    </a>
+    <a href="/projects/clock" class="icon" id="clock">
+      <img src="/icons/clock.png" alt="Clock Icon">
+    </a>
+    <a href="/projects/viewer" class="icon" id="viewer">
+      <img src="/icons/viewer.png" alt="Viewer Icon">
+    </a>
+  </main>
+  <footer>
+    <div class="nav-left">© 2022-<span id="year"></span> <a href="https://github.com/woozinius" target="_blank">woozin</a></div>
+    <div class="nav-center"></div>
+    <div class="nav-right">
+    <a href="/">IG</a>
+    <a href="/">X</a>
+    </div>
+  </footer>
+  <script src="script.js"></script>
 </body>
 </html>
