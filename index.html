@@ -4,41 +4,42 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>blank.black</title>
-  <link rel="apple-touch-icon" sizes="180x180" href="/icons/safari-pinned-tab.png">
-  <link rel="icon" type="image/png" href="/icons/favicon-32x32.png">
-  <link rel="icon" type="image/png" href="/icons/favicon-16x16.png">
-  <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#000000">
   <link rel="stylesheet" href="style.css">
-  <meta name="robots" content="noindex, nofollow">
 </head>
 <body>
   <header>
     <div class="nav-left"><a href="/">blank.black</a></div>
     <div class="nav-center"><span id="time">00:00:00</span></div>
     <div class="nav-right">
-    <a href="/">Notes</a>
-    <a href="/">Info</a>
+      <a href="/">Notes</a>
+      <a href="/">Info</a>
     </div>
   </header>
+
   <main>
     <a href="/projects/todo/" class="icon" id="todo">
       <img src="/icons/todo.png" alt="To-Do Icon">
+      <p>To-Do</p>
     </a>
-    <a href="/projects/clock" class="icon" id="clock">
+    <a href="/projects/clock/" class="icon" id="clock">
       <img src="/icons/clock.png" alt="Clock Icon">
+      <p>Clock</p>
     </a>
-    <a href="/projects/viewer" class="icon" id="viewer">
+    <a href="/projects/viewer/" class="icon" id="viewer">
       <img src="/icons/viewer.png" alt="Viewer Icon">
+      <p>Viewer</p>
     </a>
   </main>
+
   <footer>
     <div class="nav-left">© 2022-<span id="year"></span> <a href="https://github.com/woozinius" target="_blank">woozin</a></div>
-    <div class="nav-center"></div>
+    <div class="nav-center"><a href="#" id="reset-link">Reset</a></div>
     <div class="nav-right">
-    <a href="/">IG</a>
-    <a href="/">X</a>
+      <a href="/">IG</a>
+      <a href="/">X</a>
     </div>
   </footer>
+
   <script src="script.js"></script>
 </body>
 </html>
