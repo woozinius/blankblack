@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>blank.black</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/safari-pinned-tab.png" />
+  <link rel="icon" type="image/png" href="/icons/favicon-32x32.png" />
+  <link rel="icon" type="image/png" href="/icons/favicon-16x16.png" />
+  <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#000000" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
+  <header class="a-hover">
     <div class="nav-left"><a href="/">blank.black</a></div>
     <div class="nav-center"><span id="time">00:00:00</span></div>
     <div class="nav-right">
@@ -16,23 +20,37 @@
     </div>
   </header>
 
-  <main>
-    <a href="/projects/todo/" class="icon" id="todo">
-      <img src="/icons/todo.png" alt="To-Do Icon">
-      <p>To-Do</p>
-    </a>
-    <a href="/projects/clock/" class="icon" id="clock">
-      <img src="/icons/clock.png" alt="Clock Icon">
-      <p>Clock</p>
-    </a>
-    <a href="/projects/viewer/" class="icon" id="viewer">
-      <img src="/icons/viewer.png" alt="Viewer Icon">
-      <p>Viewer</p>
-    </a>
+  <main id="desktop">
+    <div class="icon" id="photo">
+      <a href="/projects/photo">
+        <img src="icons/photo.png" alt="Photo Icon" />
+        <span>photo</span>
+      </a>
+    </div>
+    <div class="icon" id="todo">
+      <a href="/projects/todo">
+        <img src="icons/todo.png" alt="To-Do Icon" />
+        <span>todo</span>
+      </a>
+    </div>
+    <div class="icon" id="clock">
+      <a href="/projects/clock">
+        <img src="icons/clock.png" alt="Clock Icon" />
+        <span>clock</span>
+      </a>
+    </div>
+    <div class="icon" id="viewer">
+      <a href="/projects/viewer">
+        <img src="icons/viewer.png" alt="Viewer Icon" />
+        <span>viewer</span>
+      </a>
+    </div>
   </main>
 
-  <footer>
-    <div class="nav-left">© 2022-<span id="year"></span> <a href="https://github.com/woozinius" target="_blank">woozin</a></div>
+  <footer class="a-hover">
+    <div class="nav-left">
+      © 2022-<span id="year"></span> <a href="https://github.com/woozinius" target="_blank">woozin</a>
+    </div>
     <div class="nav-center"><a href="#" id="reset-link">Reset</a></div>
     <div class="nav-right">
       <a href="/">IG</a>

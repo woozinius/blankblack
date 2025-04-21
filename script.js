@@ -1,4 +1,12 @@
-// 현재 시간 표시
+// 아이콘 중앙 기준 상대 위치 설정
+const defaultRelativePositions = {
+  photo: { x: 0, y: 0 },
+  todo: { x: -150, y: -100 },
+  clock: { x: 100, y: -120 },
+  viewer: { x: 120, y: 130 }
+};
+
+// 현재 시간 출력
 function updateTime() {
   const now = new Date();
   const hh = String(now.getHours()).padStart(2, '0');
@@ -9,20 +17,46 @@ function updateTime() {
 updateTime();
 setInterval(updateTime, 1000);
 
-// 연도 표시
+// 현재 연도 출력
 const year = new Date().getFullYear();
 document.getElementById('year').textContent = year;
 
 const icons = document.querySelectorAll('.icon');
 
-// 위치 복원
-icons.forEach(icon => {
-  const saved = localStorage.getItem(icon.id);
-  if (saved) {
-    const pos = JSON.parse(saved);
-    icon.style.left = pos.left;
-    icon.style.top = pos.top;
-  }
+// 중앙 기준 상대 위치 적용
+function applyInitialPosition() {
+  const centerX = window.innerWidth / 2;
+  const centerY = window.innerHeight / 2;
+
+  icons.forEach(icon => {
+    const saved = localStorage.getItem(icon.id);
+    let left, top;
+
+    if (saved) {
+      const pos = JSON.parse(saved);
+      left = pos.left;
+      top = pos.top;
+    } else {
+      const rel = defaultRelativePositions[icon.id];
+      if (!rel) return;
+      left = `${(centerX + rel.x) / window.innerWidth * 100}vw`;
+      top = `${(centerY + rel.y) / window.innerHeight * 100}vh`;
+    }
+
+    icon.style.left = left;
+    icon.style.top = top;
+    icon.style.opacity = '1';
+  });
+}
+applyInitialPosition();
+
+window.addEventListener('resize', () => {
+  icons.forEach(icon => {
+    const saved = localStorage.getItem(icon.id);
+    if (!saved) {
+      applyInitialPosition();
+    }
+  });
 });
 
 // 선택 효과
@@ -49,24 +83,20 @@ document.addEventListener('keydown', (e) => {
 icons.forEach(icon => {
   let isDragging = false;
   let hasMoved = false;
-  let startMouseX, startMouseY;
-  let startIconX, startIconY;
+  let offsetX = 0;
+  let offsetY = 0;
 
   icon.addEventListener('mousedown', (e) => {
     e.preventDefault();
     isDragging = true;
     hasMoved = false;
 
-    // 선택 상태 초기화 후 현재 아이콘만 선택
+    const rect = icon.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+
     icons.forEach(i => i.classList.remove('selected'));
     icon.classList.add('selected');
-
-    startMouseX = e.clientX;
-    startMouseY = e.clientY;
-
-    const rect = icon.getBoundingClientRect();
-    startIconX = rect.left + window.scrollX;
-    startIconY = rect.top + window.scrollY;
 
     icon.style.cursor = 'grabbing';
     e.stopPropagation();
@@ -74,54 +104,40 @@ icons.forEach(icon => {
 
   window.addEventListener('mousemove', (e) => {
     if (!isDragging) return;
-
-    const dx = e.clientX - startMouseX;
-    const dy = e.clientY - startMouseY;
-
-    const newX = startIconX + dx;
-    const newY = startIconY + dy;
-
-    icon.style.left = `${newX}px`;
-    icon.style.top = `${newY}px`;
-
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const left = (e.clientX - offsetX) / vw * 100;
+    const top = (e.clientY - offsetY) / vh * 100;
+    icon.style.left = `${left}vw`;
+    icon.style.top = `${top}vh`;
     hasMoved = true;
   });
 
   window.addEventListener('mouseup', () => {
-    if (isDragging && !hasMoved) {
-      const href = icon.getAttribute('href');
-      if (href) window.location.href = href;
-    }
+    if (isDragging) {
+      if (!hasMoved) {
+        const href = icon.querySelector('a')?.getAttribute('href');
+        if (href) window.location.href = href;
+      }
 
-    icon.classList.add('selected');
+      const left = icon.style.left;
+      const top = icon.style.top;
+      const position = { left, top };
+      localStorage.setItem(icon.id, JSON.stringify(position));
 
-    const position = {
-      left: icon.style.left,
-      top: icon.style.top
-    };
-    localStorage.setItem(icon.id, JSON.stringify(position));
-
-    isDragging = false;
-    icon.style.cursor = 'grab';
-  });
-});
-
-// Reset 기능
-const defaultPositions = {
-  todo: { left: '100px', top: '100px' },
-  clock: { left: '200px', top: '200px' },
-  viewer: { left: '300px', top: '400px' }
-};
-
-document.getElementById('reset-link').addEventListener('click', (e) => {
-  e.preventDefault();
-  icons.forEach(icon => {
-    const id = icon.id;
-    const defaultPos = defaultPositions[id];
-    if (defaultPos) {
-      icon.style.left = defaultPos.left;
-      icon.style.top = defaultPos.top;
-      localStorage.setItem(id, JSON.stringify(defaultPos));
+      icon.style.cursor = 'grab';
+      isDragging = false;
     }
   });
 });
+
+// 리셋 버튼
+const reset = document.getElementById('reset-link');
+if (reset) {
+  reset.addEventListener('click', (e) => {
+    e.preventDefault();
+    localStorage.clear();
+    applyInitialPosition();
+  });
+}
+

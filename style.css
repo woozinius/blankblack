@@ -4,10 +4,11 @@
 
 @media (hover: hover) {
   .a-hover a:hover {
-    color: var(--color-red) !important;
+    color: var(--color-red)!important;
   }
 }
 
+/* 기본 설정 */
 body {
   margin: 0;
   padding: 0;
@@ -16,25 +17,26 @@ body {
   font-family: monospace;
   height: 100vh;
   overflow: hidden;
-  position: relative;
 }
 
-header,
-footer {
+header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: relative;
   padding: 0 20px;
   height: 50px;
-  font-size: 13px;
-  font-family: monospace;
+  z-index: 10;
 }
 
 footer {
+  display: flex;
+  justify-content: space-between;
   position: absolute;
   bottom: 0;
   width: 100%;
-  padding: 20px 20px;
+  font-size: 13px;
+  padding: 20px;
   box-sizing: border-box;
 }
 
@@ -45,7 +47,8 @@ footer {
 
 .nav-left a,
 .nav-right a,
-.nav-center, .nav-center a {
+.nav-center,
+.nav-center a {
   color: #000;
   text-decoration: none;
   font-size: 13px;
@@ -59,42 +62,49 @@ footer {
   white-space: nowrap;
 }
 
-main {
-  position: static;
+main#desktop {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
 }
 
 .icon {
   position: absolute;
-  width: 80px;
-  height: 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   text-decoration: none;
   color: #000;
   font-size: 13px;
+  opacity: 0;
+  transform: scale(0.96);
+  transition: opacity 0.3s ease, transform 0.3s ease;
   cursor: grab;
-  user-select: none;
-  box-sizing: border-box;
 }
 
 .icon img {
   width: 40px;
   height: 40px;
-  margin-bottom: 6px;
-}
-
-.icon p {
-  margin: 0;
-  padding: 0;
-  font-size: 11px;
-  pointer-events: none;
+  margin-bottom: 8px;
+  user-select: none;
 }
 
 .icon.selected {
   outline: 2px dotted black;
   outline-offset: 4px;
+}
+
+.icon a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+
+#reset-link {
+  cursor: pointer;
+  text-decoration: underline;
 }
