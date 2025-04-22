@@ -40,7 +40,9 @@ footer {
   box-sizing: border-box;
 }
 
-.nav-right {
+.nav-right,
+.nav-center
+{
   display: flex;
   gap: 20px;
 }
@@ -102,9 +104,4 @@ main#desktop {
   align-items: center;
   text-decoration: none;
   color: inherit;
-}
-
-#reset-link {
-  cursor: pointer;
-  text-decoration: underline;
 }

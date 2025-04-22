@@ -94,42 +94,34 @@ icons.forEach(icon => {
   let offsetX = 0;
   let offsetY = 0;
 
-  icon.addEventListener('mousedown', (e) => {
-    e.preventDefault();
+  const startDrag = (x, y) => {
+    const rect = icon.getBoundingClientRect();
+    offsetX = x - rect.left;
+    offsetY = y - rect.top;
     isDragging = true;
     hasMoved = false;
-
-    const rect = icon.getBoundingClientRect();
-    offsetX = e.clientX - rect.left;
-    offsetY = e.clientY - rect.top;
-
     icons.forEach(i => i.classList.remove('selected'));
     icon.classList.add('selected');
     icon.style.cursor = 'grabbing';
     icon.style.transition = 'none';
-    e.stopPropagation();
-  });
+  };
 
-  window.addEventListener('mousemove', (e) => {
+  const duringDrag = (x, y) => {
     if (!isDragging) return;
-
-    const x = e.clientX - offsetX;
-    const y = e.clientY - offsetY;
-
     const iconWidth = icon.offsetWidth;
     const iconHeight = icon.offsetHeight;
     const maxX = window.innerWidth - iconWidth;
     const maxY = window.innerHeight - iconHeight;
 
-    const newX = Math.max(0, Math.min(x, maxX));
-    const newY = Math.max(0, Math.min(y, maxY));
+    const newX = Math.max(0, Math.min(x - offsetX, maxX));
+    const newY = Math.max(0, Math.min(y - offsetY, maxY));
 
     icon.style.left = `${newX}px`;
     icon.style.top = `${newY}px`;
     hasMoved = true;
-  });
+  };
 
-  window.addEventListener('mouseup', () => {
+  const endDrag = () => {
     if (isDragging) {
       if (!hasMoved) {
         const href = icon.querySelector('a')?.getAttribute('href');
@@ -149,7 +141,28 @@ icons.forEach(icon => {
       icon.style.cursor = 'grab';
       isDragging = false;
     }
+  };
+
+  // 마우스 이벤트
+  icon.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    startDrag(e.clientX, e.clientY);
+    e.stopPropagation();
   });
+  window.addEventListener('mousemove', (e) => duringDrag(e.clientX, e.clientY));
+  window.addEventListener('mouseup', endDrag);
+
+  // 터치 이벤트
+  icon.addEventListener('touchstart', (e) => {
+    const touch = e.touches[0];
+    startDrag(touch.clientX, touch.clientY);
+    e.stopPropagation();
+  });
+  window.addEventListener('touchmove', (e) => {
+    const touch = e.touches[0];
+    duringDrag(touch.clientX, touch.clientY);
+  }, { passive: false });
+  window.addEventListener('touchend', endDrag);
 });
 
 const reset = document.getElementById('reset-link');
