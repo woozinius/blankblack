@@ -1,0 +1,132 @@
+/* 색상 변수 */
+:root {
+  --color-red: #ef0202;
+}
+
+@media (hover: hover) {
+  .a-hover a:hover {
+    color: var(--color-red) !important;
+  }
+}
+
+/* 기본 설정 */
+
+html {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #000;
+  color: #000;
+  font-family: monospace;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* 중앙 기준 컨테이너 */
+#container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+  max-width: 1200px; /* 최대 넓이 설정 */
+  background: white;
+  overflow: hidden;
+}
+
+header {
+  border-bottom: 1px solid #000;
+  display: flex;
+  background: transparent;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  height: 50px;
+  z-index: 1;
+  position: relative;
+}
+
+footer {
+  border-top: 1px solid #000;
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  font-size: 13px;
+  padding: 0 20px;
+  height: 50px;
+  box-sizing: border-box;
+}
+
+.nav-right {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-left a,
+.nav-right a,
+.nav-center,
+.nav-center a {
+  color: #000;
+  text-decoration: none;
+  font-size: 13px;
+  font-family: monospace;
+}
+
+.nav-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+main#desktop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.icon {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: #000;
+  width: 80px;
+  font-size: 13px;
+  opacity: 0;
+  transform: scale(0.96);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  cursor: grab;
+  z-index: 5;
+}
+
+.icon img {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 8px;
+  user-select: none;
+  pointer-events: none;
+}
+
+.icon.selected {
+  outline: 2px dotted black;
+  outline-offset: 4px;
+}
+
+.icon a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
