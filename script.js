@@ -50,13 +50,18 @@ function applyRelativePositions() {
     const left = center.x + rel.x * center.x - offsetX;
     const top = center.y + rel.y * center.y - offsetY;
 
+    icon.style.transition = 'none';
     icon.style.left = `${left}px`;
     icon.style.top = `${top}px`;
     icon.style.opacity = '1';
   });
 }
 
-window.addEventListener('load', applyRelativePositions);
+window.addEventListener('load', () => {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(applyRelativePositions);
+  });
+});
 window.addEventListener('resize', applyRelativePositions);
 
 // 선택 효과
@@ -97,6 +102,7 @@ icons.forEach(icon => {
     icons.forEach(i => i.classList.remove('selected'));
     icon.classList.add('selected');
     icon.style.cursor = 'grabbing';
+    icon.style.transition = 'none';
     e.stopPropagation();
   });
 
@@ -142,12 +148,48 @@ icons.forEach(icon => {
   });
 });
 
-// 리셋
 const reset = document.getElementById('reset-link');
 if (reset) {
   reset.addEventListener('click', (e) => {
     e.preventDefault();
     localStorage.clear();
     applyRelativePositions();
+  });
+}
+
+const align = document.getElementById('align-link');
+if (align) {
+  align.addEventListener('click', (e) => {
+    e.preventDefault();
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const center = getCenter();
+        const gridSize = Math.ceil(Math.sqrt(icons.length));
+        const spacing = 100;
+
+        icons.forEach((icon, index) => {
+          const iconRect = icon.getBoundingClientRect();
+          const offsetX = iconRect.width / 2;
+          const offsetY = iconRect.height / 2;
+
+          const row = Math.floor(index / gridSize);
+          const col = index % gridSize;
+          const dx = (col - (gridSize - 1) / 2) * spacing;
+          const dy = (row - (gridSize - 1) / 2) * spacing;
+
+          const left = center.x + dx - offsetX;
+          const top = center.y + dy - offsetY;
+
+          icon.style.transition = 'left 0.3s ease, top 0.3s ease';
+          icon.style.left = `${left}px`;
+          icon.style.top = `${top}px`;
+
+          const relX = dx / center.x;
+          const relY = dy / center.y;
+          localStorage.setItem(icon.id, JSON.stringify({ x: relX, y: relY }));
+        });
+      });
+    });
   });
 }
