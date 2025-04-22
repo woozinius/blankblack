@@ -4,9 +4,9 @@ const icons = document.querySelectorAll('.icon');
 // 상대 위치 기본값
 const defaultRelativePositions = {
   photo: { x: 0, y: 0 },
-  todo: { x: -0.4, y: -0.3 },
+  todo: { x: -0.4, y: -0.4 },
   clock: { x: 0.4, y: -0.3 },
-  viewer: { x: 0.4, y: 0.4 }
+  viewer: { x: 0.3, y: 0.4 }
 };
 
 // 시간 출력
