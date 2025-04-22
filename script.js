@@ -1,5 +1,8 @@
+// 📦 컨테이너, 아이콘 요소 참조
 const container = document.getElementById('container');
 const icons = document.querySelectorAll('.icon');
+const header = document.querySelector('header');
+const footer = document.querySelector('footer');
 
 // 상대 위치 기본값
 const defaultRelativePositions = {
@@ -9,7 +12,7 @@ const defaultRelativePositions = {
   viewer: { x: 0.3, y: 0.4 }
 };
 
-// 시간 출력
+// 시계 출력
 function updateTime() {
   const now = new Date();
   document.getElementById('time').textContent = now.toTimeString().split(' ')[0];
@@ -17,18 +20,21 @@ function updateTime() {
 updateTime();
 setInterval(updateTime, 1000);
 
-// 연도
 document.getElementById('year').textContent = new Date().getFullYear();
 
-// 중심 좌표 계산
 function getCenter() {
   const rect = container.getBoundingClientRect();
   return { x: rect.width / 2, y: rect.height / 2 };
 }
 
-// 위치 적용
+function getFooterHeight() {
+  return footer ? footer.offsetHeight : 0;
+}
+
 function applyRelativePositions(withAnimation = false) {
   const center = getCenter();
+  const footerHeight = getFooterHeight();
+  const headerHeight = header ? header.offsetHeight : 0;
 
   icons.forEach(icon => {
     const saved = localStorage.getItem(icon.id);
@@ -42,12 +48,11 @@ function applyRelativePositions(withAnimation = false) {
     let left = center.x + rel.x * center.x - offsetX;
     let top = center.y + rel.y * center.y - offsetY;
 
-    // 안전 영역 계산
     const maxX = container.clientWidth - icon.offsetWidth - margin;
-    const maxY = container.clientHeight - icon.offsetHeight - margin;
+    const maxY = container.clientHeight - icon.offsetHeight - footerHeight - margin;
 
     left = Math.max(margin, Math.min(left, maxX));
-    top = Math.max(margin, Math.min(top, maxY));
+    top = Math.max(headerHeight + margin, Math.min(top, maxY));
 
     icon.style.transition = withAnimation ? 'left 0.3s ease, top 0.3s ease' : 'none';
     icon.style.left = `${left}px`;
@@ -56,7 +61,6 @@ function applyRelativePositions(withAnimation = false) {
   });
 }
 
-// 초기 적용
 window.addEventListener('load', () => {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => applyRelativePositions());
@@ -64,7 +68,6 @@ window.addEventListener('load', () => {
 });
 window.addEventListener('resize', () => applyRelativePositions());
 
-// 선택 효과
 icons.forEach(icon => {
   icon.addEventListener('click', e => {
     e.preventDefault();
@@ -82,7 +85,6 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// 드래그 기능
 icons.forEach(icon => {
   let isDragging = false;
   let hasMoved = false;
@@ -108,14 +110,15 @@ icons.forEach(icon => {
     const containerRect = container.getBoundingClientRect();
     const iconWidth = icon.offsetWidth;
     const iconHeight = icon.offsetHeight;
+    const headerHeight = header ? header.offsetHeight : 0;
+    const footerHeight = getFooterHeight();
+    const margin = 6;
 
-    const maxX = container.clientWidth - iconWidth;
-    const maxY = container.clientHeight - iconHeight;
+    const maxX = container.clientWidth - iconWidth - margin;
+    const maxY = container.clientHeight - iconHeight - footerHeight - margin;
 
-    // duringDrag 함수나 applyRelativePositions 안에서
-    const margin = 6; // box-shadow 또는 안전 영역 여유
-    const newX = Math.max(margin, Math.min(x - offsetX, maxX - margin));
-    const newY = Math.max(margin, Math.min(y - offsetY, maxY - margin));
+    const newX = Math.max(margin, Math.min(x - offsetX, maxX));
+    const newY = Math.max(headerHeight + margin, Math.min(y - offsetY, maxY));
 
     icon.style.left = `${newX}px`;
     icon.style.top = `${newY}px`;
@@ -144,7 +147,6 @@ icons.forEach(icon => {
     isDragging = false;
   };
 
-  // 마우스
   icon.addEventListener('mousedown', e => {
     e.preventDefault();
     startDrag(e.clientX, e.clientY);
@@ -152,7 +154,6 @@ icons.forEach(icon => {
   window.addEventListener('mousemove', e => duringDrag(e.clientX, e.clientY));
   window.addEventListener('mouseup', endDrag);
 
-  // 터치
   icon.addEventListener('touchstart', e => {
     const touch = e.touches[0];
     startDrag(touch.clientX, touch.clientY);
@@ -165,35 +166,42 @@ icons.forEach(icon => {
   window.addEventListener('touchend', endDrag);
 });
 
-// 리셋
 document.getElementById('reset-link')?.addEventListener('click', e => {
   e.preventDefault();
   localStorage.clear();
   applyRelativePositions(true);
 });
 
-// 정렬
 document.getElementById('align-link')?.addEventListener('click', e => {
   e.preventDefault();
   const center = getCenter();
   const spacing = 100;
   const gridSize = Math.ceil(Math.sqrt(icons.length));
+  const headerHeight = header ? header.offsetHeight : 0;
+  const footerHeight = getFooterHeight();
 
   icons.forEach((icon, index) => {
     const offsetX = icon.offsetWidth / 2;
     const offsetY = icon.offsetHeight / 2;
+    const margin = 6;
 
     const row = Math.floor(index / gridSize);
     const col = index % gridSize;
     const dx = (col - (gridSize - 1) / 2) * spacing;
     const dy = (row - (gridSize - 1) / 2) * spacing;
 
-    const left = center.x + dx - offsetX;
-    const top = center.y + dy - offsetY;
+    let left = center.x + dx - offsetX;
+    let top = center.y + dy - offsetY;
+
+    const maxX = container.clientWidth - icon.offsetWidth - margin;
+    const maxY = container.clientHeight - icon.offsetHeight - footerHeight - margin;
+
+    left = Math.max(margin, Math.min(left, maxX));
+    top = Math.max(headerHeight + margin, Math.min(top, maxY));
 
     icon.style.transition = 'left 0.3s ease, top 0.3s ease';
-    icon.style.left = `${Math.max(0, Math.min(left, container.clientWidth - icon.offsetWidth))}px`;
-    icon.style.top = `${Math.max(0, Math.min(top, container.clientHeight - icon.offsetHeight))}px`;
+    icon.style.left = `${left}px`;
+    icon.style.top = `${top}px`;
 
     const relX = dx / center.x;
     const relY = dy / center.y;
