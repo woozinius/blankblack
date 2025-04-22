@@ -4,15 +4,6 @@ const icons = document.querySelectorAll('.icon');
 const header = document.querySelector('header');
 const footer = document.querySelector('footer');
 
-// 상대 위치 기본값
-const defaultRelativePositions = {
-  photo: { x: 0, y: 0 },
-  todo: { x: -0.4, y: -0.4 },
-  clock: { x: 0.4, y: -0.3 },
-  viewer: { x: 0.3, y: 0.4 }
-};
-
-// 시계 출력
 function updateTime() {
   const now = new Date();
   document.getElementById('time').textContent = now.toTimeString().split(' ')[0];
@@ -31,34 +22,83 @@ function getFooterHeight() {
   return footer ? footer.offsetHeight : 0;
 }
 
-function applyRelativePositions(withAnimation = false) {
-  const center = getCenter();
-  const footerHeight = getFooterHeight();
+function alignTopLeft(withAnimation = false) {
+  const margin = 30;
+  const spacingX = 100;
+  const spacingY = 100;
   const headerHeight = header ? header.offsetHeight : 0;
+  const footerHeight = getFooterHeight();
+  const containerWidth = container.clientWidth;
+  const containerHeight = container.clientHeight;
+
+  let x = margin;
+  let y = headerHeight + margin;
 
   icons.forEach(icon => {
-    const saved = localStorage.getItem(icon.id);
-    const rel = saved ? JSON.parse(saved) : defaultRelativePositions[icon.id];
-    if (!rel) return;
+    const iconWidth = icon.offsetWidth;
+    const iconHeight = icon.offsetHeight;
+    const maxX = containerWidth - iconWidth - margin;
+    const maxY = containerHeight - iconHeight - footerHeight - margin;
 
-    const offsetX = icon.offsetWidth / 2;
-    const offsetY = icon.offsetHeight / 2;
-    const margin = 6;
+    if (x > maxX) {
+      x = margin;
+      y += spacingY;
+    }
 
-    let left = center.x + rel.x * center.x - offsetX;
-    let top = center.y + rel.y * center.y - offsetY;
-
-    const maxX = container.clientWidth - icon.offsetWidth - margin;
-    const maxY = container.clientHeight - icon.offsetHeight - footerHeight - margin;
-
-    left = Math.max(margin, Math.min(left, maxX));
-    top = Math.max(headerHeight + margin, Math.min(top, maxY));
+    const left = Math.min(x, maxX);
+    const top = Math.min(y, maxY);
 
     icon.style.transition = withAnimation ? 'left 0.3s ease, top 0.3s ease' : 'none';
     icon.style.left = `${left}px`;
     icon.style.top = `${top}px`;
     icon.style.opacity = '1';
+
+    const center = getCenter();
+    const relX = (left + iconWidth / 2 - center.x) / center.x;
+    const relY = (top + iconHeight / 2 - center.y) / center.y;
+    localStorage.setItem(icon.id, JSON.stringify({ x: relX, y: relY }));
+
+    x += spacingX;
   });
+}
+
+function applyRelativePositions(withAnimation = false) {
+  let hasSavedPosition = false;
+  icons.forEach(icon => {
+    if (localStorage.getItem(icon.id)) hasSavedPosition = true;
+  });
+
+  if (hasSavedPosition) {
+    const center = getCenter();
+    const footerHeight = getFooterHeight();
+    const headerHeight = header ? header.offsetHeight : 0;
+
+    icons.forEach(icon => {
+      const saved = localStorage.getItem(icon.id);
+      const rel = saved ? JSON.parse(saved) : defaultRelativePositions[icon.id];
+      if (!rel) return;
+
+      const offsetX = icon.offsetWidth / 2;
+      const offsetY = icon.offsetHeight / 2;
+      const margin = 6;
+
+      let left = center.x + rel.x * center.x - offsetX;
+      let top = center.y + rel.y * center.y - offsetY;
+
+      const maxX = container.clientWidth - icon.offsetWidth - margin;
+      const maxY = container.clientHeight - icon.offsetHeight - footerHeight - margin;
+
+      left = Math.max(margin, Math.min(left, maxX));
+      top = Math.max(headerHeight + margin, Math.min(top, maxY));
+
+      icon.style.transition = withAnimation ? 'left 0.3s ease, top 0.3s ease' : 'none';
+      icon.style.left = `${left}px`;
+      icon.style.top = `${top}px`;
+      icon.style.opacity = '1';
+    });
+  } else {
+    alignTopLeft(withAnimation);
+  }
 }
 
 window.addEventListener('load', () => {
@@ -174,37 +214,5 @@ document.getElementById('reset-link')?.addEventListener('click', e => {
 
 document.getElementById('align-link')?.addEventListener('click', e => {
   e.preventDefault();
-  const center = getCenter();
-  const spacing = 100;
-  const gridSize = Math.ceil(Math.sqrt(icons.length));
-  const headerHeight = header ? header.offsetHeight : 0;
-  const footerHeight = getFooterHeight();
-
-  icons.forEach((icon, index) => {
-    const offsetX = icon.offsetWidth / 2;
-    const offsetY = icon.offsetHeight / 2;
-    const margin = 6;
-
-    const row = Math.floor(index / gridSize);
-    const col = index % gridSize;
-    const dx = (col - (gridSize - 1) / 2) * spacing;
-    const dy = (row - (gridSize - 1) / 2) * spacing;
-
-    let left = center.x + dx - offsetX;
-    let top = center.y + dy - offsetY;
-
-    const maxX = container.clientWidth - icon.offsetWidth - margin;
-    const maxY = container.clientHeight - icon.offsetHeight - footerHeight - margin;
-
-    left = Math.max(margin, Math.min(left, maxX));
-    top = Math.max(headerHeight + margin, Math.min(top, maxY));
-
-    icon.style.transition = 'left 0.3s ease, top 0.3s ease';
-    icon.style.left = `${left}px`;
-    icon.style.top = `${top}px`;
-
-    const relX = dx / center.x;
-    const relY = dy / center.y;
-    localStorage.setItem(icon.id, JSON.stringify({ x: relX, y: relY }));
-  });
+  alignTopLeft(true);
 });
