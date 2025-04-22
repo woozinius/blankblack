@@ -1,4 +1,7 @@
-// 아이콘 중앙 기준 상대 위치 설정 (정규화된 값: -1 ~ 1)
+const container = document.getElementById('container');
+const icons = document.querySelectorAll('.icon');
+
+// 상대 위치 기본값
 const defaultRelativePositions = {
   photo: { x: 0, y: 0 },
   todo: { x: -0.4, y: -0.3 },
@@ -6,49 +9,45 @@ const defaultRelativePositions = {
   viewer: { x: 0.4, y: 0.4 }
 };
 
+// 시간 출력
 function updateTime() {
   const now = new Date();
-  const hh = String(now.getHours()).padStart(2, '0');
-  const mm = String(now.getMinutes()).padStart(2, '0');
-  const ss = String(now.getSeconds()).padStart(2, '0');
-  document.getElementById('time').textContent = `${hh}:${mm}:${ss}`;
+  document.getElementById('time').textContent = now.toTimeString().split(' ')[0];
 }
 updateTime();
 setInterval(updateTime, 1000);
 
-const year = new Date().getFullYear();
-document.getElementById('year').textContent = year;
+// 연도
+document.getElementById('year').textContent = new Date().getFullYear();
 
-const icons = document.querySelectorAll('.icon');
-
+// 중심 좌표 계산
 function getCenter() {
-  return {
-    x: window.innerWidth / 2,
-    y: window.innerHeight / 2,
-  };
+  const rect = container.getBoundingClientRect();
+  return { x: rect.width / 2, y: rect.height / 2 };
 }
 
+// 위치 적용
 function applyRelativePositions(withAnimation = false) {
   const center = getCenter();
 
   icons.forEach(icon => {
     const saved = localStorage.getItem(icon.id);
-    let rel;
-
-    if (saved) {
-      rel = JSON.parse(saved);
-    } else {
-      rel = defaultRelativePositions[icon.id];
-    }
-
+    const rel = saved ? JSON.parse(saved) : defaultRelativePositions[icon.id];
     if (!rel) return;
 
-    const iconRect = icon.getBoundingClientRect();
-    const offsetX = iconRect.width / 2;
-    const offsetY = iconRect.height / 2;
+    const offsetX = icon.offsetWidth / 2;
+    const offsetY = icon.offsetHeight / 2;
+    const margin = 6;
 
-    const left = center.x + rel.x * center.x - offsetX;
-    const top = center.y + rel.y * center.y - offsetY;
+    let left = center.x + rel.x * center.x - offsetX;
+    let top = center.y + rel.y * center.y - offsetY;
+
+    // 안전 영역 계산
+    const maxX = container.clientWidth - icon.offsetWidth - margin;
+    const maxY = container.clientHeight - icon.offsetHeight - margin;
+
+    left = Math.max(margin, Math.min(left, maxX));
+    top = Math.max(margin, Math.min(top, maxY));
 
     icon.style.transition = withAnimation ? 'left 0.3s ease, top 0.3s ease' : 'none';
     icon.style.left = `${left}px`;
@@ -57,47 +56,44 @@ function applyRelativePositions(withAnimation = false) {
   });
 }
 
+// 초기 적용
 window.addEventListener('load', () => {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => applyRelativePositions());
   });
 });
-
-window.addEventListener('resize', () => {
-  icons.forEach(icon => icon.style.transition = 'none');
-  applyRelativePositions();
-});
+window.addEventListener('resize', () => applyRelativePositions());
 
 // 선택 효과
 icons.forEach(icon => {
-  icon.addEventListener('click', (e) => {
+  icon.addEventListener('click', e => {
     e.preventDefault();
     icons.forEach(i => i.classList.remove('selected'));
     icon.classList.add('selected');
     e.stopPropagation();
   });
 });
-
 document.body.addEventListener('click', () => {
   icons.forEach(icon => icon.classList.remove('selected'));
 });
-
-document.addEventListener('keydown', (e) => {
+document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     icons.forEach(icon => icon.classList.remove('selected'));
   }
 });
 
+// 드래그 기능
 icons.forEach(icon => {
   let isDragging = false;
   let hasMoved = false;
-  let offsetX = 0;
-  let offsetY = 0;
+  let offsetX = 0, offsetY = 0;
 
   const startDrag = (x, y) => {
     const rect = icon.getBoundingClientRect();
-    offsetX = x - rect.left;
-    offsetY = y - rect.top;
+    const containerRect = container.getBoundingClientRect();
+    offsetX = x - rect.left + containerRect.left;
+    offsetY = y - rect.top + containerRect.top;
+
     isDragging = true;
     hasMoved = false;
     icons.forEach(i => i.classList.remove('selected'));
@@ -108,13 +104,18 @@ icons.forEach(icon => {
 
   const duringDrag = (x, y) => {
     if (!isDragging) return;
+
+    const containerRect = container.getBoundingClientRect();
     const iconWidth = icon.offsetWidth;
     const iconHeight = icon.offsetHeight;
-    const maxX = window.innerWidth - iconWidth;
-    const maxY = window.innerHeight - iconHeight;
 
-    const newX = Math.max(0, Math.min(x - offsetX, maxX));
-    const newY = Math.max(0, Math.min(y - offsetY, maxY));
+    const maxX = container.clientWidth - iconWidth;
+    const maxY = container.clientHeight - iconHeight;
+
+    // duringDrag 함수나 applyRelativePositions 안에서
+    const margin = 6; // box-shadow 또는 안전 영역 여유
+    const newX = Math.max(margin, Math.min(x - offsetX, maxX - margin));
+    const newY = Math.max(margin, Math.min(y - offsetY, maxY - margin));
 
     icon.style.left = `${newX}px`;
     icon.style.top = `${newY}px`;
@@ -122,91 +123,80 @@ icons.forEach(icon => {
   };
 
   const endDrag = () => {
-    if (isDragging) {
-      if (!hasMoved) {
-        const href = icon.querySelector('a')?.getAttribute('href');
-        if (href) window.location.href = href;
-      }
+    if (!isDragging) return;
 
-      const center = getCenter();
-      const iconRect = icon.getBoundingClientRect();
-      const offsetX = iconRect.width / 2;
-      const offsetY = iconRect.height / 2;
-
-      const x = ((iconRect.left + offsetX) - center.x) / center.x;
-      const y = ((iconRect.top + offsetY) - center.y) / center.y;
-
-      localStorage.setItem(icon.id, JSON.stringify({ x, y }));
-
-      icon.style.cursor = 'grab';
-      isDragging = false;
+    if (!hasMoved) {
+      const href = icon.querySelector('a')?.getAttribute('href');
+      if (href) window.location.href = href;
     }
+
+    const containerRect = container.getBoundingClientRect();
+    const iconRect = icon.getBoundingClientRect();
+    const centerX = iconRect.left + iconRect.width / 2 - containerRect.left;
+    const centerY = iconRect.top + iconRect.height / 2 - containerRect.top;
+    const center = getCenter();
+
+    const relX = (centerX - center.x) / center.x;
+    const relY = (centerY - center.y) / center.y;
+    localStorage.setItem(icon.id, JSON.stringify({ x: relX, y: relY }));
+
+    icon.style.cursor = 'grab';
+    isDragging = false;
   };
 
-  // 마우스 이벤트
-  icon.addEventListener('mousedown', (e) => {
+  // 마우스
+  icon.addEventListener('mousedown', e => {
     e.preventDefault();
     startDrag(e.clientX, e.clientY);
-    e.stopPropagation();
   });
-  window.addEventListener('mousemove', (e) => duringDrag(e.clientX, e.clientY));
+  window.addEventListener('mousemove', e => duringDrag(e.clientX, e.clientY));
   window.addEventListener('mouseup', endDrag);
 
-  // 터치 이벤트
-  icon.addEventListener('touchstart', (e) => {
+  // 터치
+  icon.addEventListener('touchstart', e => {
     const touch = e.touches[0];
     startDrag(touch.clientX, touch.clientY);
     e.stopPropagation();
-  });
-  window.addEventListener('touchmove', (e) => {
+  }, { passive: false });
+  window.addEventListener('touchmove', e => {
     const touch = e.touches[0];
     duringDrag(touch.clientX, touch.clientY);
   }, { passive: false });
   window.addEventListener('touchend', endDrag);
 });
 
-const reset = document.getElementById('reset-link');
-if (reset) {
-  reset.addEventListener('click', (e) => {
-    e.preventDefault();
-    localStorage.clear();
-    applyRelativePositions(true);
+// 리셋
+document.getElementById('reset-link')?.addEventListener('click', e => {
+  e.preventDefault();
+  localStorage.clear();
+  applyRelativePositions(true);
+});
+
+// 정렬
+document.getElementById('align-link')?.addEventListener('click', e => {
+  e.preventDefault();
+  const center = getCenter();
+  const spacing = 100;
+  const gridSize = Math.ceil(Math.sqrt(icons.length));
+
+  icons.forEach((icon, index) => {
+    const offsetX = icon.offsetWidth / 2;
+    const offsetY = icon.offsetHeight / 2;
+
+    const row = Math.floor(index / gridSize);
+    const col = index % gridSize;
+    const dx = (col - (gridSize - 1) / 2) * spacing;
+    const dy = (row - (gridSize - 1) / 2) * spacing;
+
+    const left = center.x + dx - offsetX;
+    const top = center.y + dy - offsetY;
+
+    icon.style.transition = 'left 0.3s ease, top 0.3s ease';
+    icon.style.left = `${Math.max(0, Math.min(left, container.clientWidth - icon.offsetWidth))}px`;
+    icon.style.top = `${Math.max(0, Math.min(top, container.clientHeight - icon.offsetHeight))}px`;
+
+    const relX = dx / center.x;
+    const relY = dy / center.y;
+    localStorage.setItem(icon.id, JSON.stringify({ x: relX, y: relY }));
   });
-}
-
-const align = document.getElementById('align-link');
-if (align) {
-  align.addEventListener('click', (e) => {
-    e.preventDefault();
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const center = getCenter();
-        const gridSize = Math.ceil(Math.sqrt(icons.length));
-        const spacing = 100;
-
-        icons.forEach((icon, index) => {
-          const iconRect = icon.getBoundingClientRect();
-          const offsetX = iconRect.width / 2;
-          const offsetY = iconRect.height / 2;
-
-          const row = Math.floor(index / gridSize);
-          const col = index % gridSize;
-          const dx = (col - (gridSize - 1) / 2) * spacing;
-          const dy = (row - (gridSize - 1) / 2) * spacing;
-
-          const left = center.x + dx - offsetX;
-          const top = center.y + dy - offsetY;
-
-          icon.style.transition = 'left 0.3s ease, top 0.3s ease';
-          icon.style.left = `${left}px`;
-          icon.style.top = `${top}px`;
-
-          const relX = dx / center.x;
-          const relY = dy / center.y;
-          localStorage.setItem(icon.id, JSON.stringify({ x: relX, y: relY }));
-        });
-      });
-    });
-  });
-}
+});

@@ -1,10 +1,11 @@
+/* 색상 변수 */
 :root {
   --color-red: #ef0202;
 }
 
 @media (hover: hover) {
   .a-hover a:hover {
-    color: var(--color-red)!important;
+    color: var(--color-red) !important;
   }
 }
 
@@ -12,10 +13,22 @@
 body {
   margin: 0;
   padding: 0;
-  background: #fff;
+  background: #000;
   color: #000;
   font-family: monospace;
+  width: 100vw;
   height: 100vh;
+  overflow: hidden;
+}
+
+/* 중앙 기준 컨테이너 */
+#container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  margin: 0 auto;
+  max-width: 1200px; /* 최대 넓이 설정 */
+  background: white;
   overflow: hidden;
 }
 
@@ -23,10 +36,10 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: relative;
   padding: 0 20px;
   height: 50px;
   z-index: 10;
+  position: relative;
 }
 
 footer {
@@ -40,9 +53,7 @@ footer {
   box-sizing: border-box;
 }
 
-.nav-right,
-.nav-center
-{
+.nav-right {
   display: flex;
   gap: 20px;
 }
@@ -91,6 +102,7 @@ main#desktop {
   height: 40px;
   margin-bottom: 8px;
   user-select: none;
+  pointer-events: none;
 }
 
 .icon.selected {
@@ -106,6 +118,8 @@ main#desktop {
   color: inherit;
 }
 
-.desktop-icon {
-  font-size: 40px!important;
+#reset-link,
+#align-link {
+  cursor: pointer;
+  text-decoration: underline;
 }
