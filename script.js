@@ -28,7 +28,7 @@ function getCenter() {
   };
 }
 
-function applyRelativePositions() {
+function applyRelativePositions(withAnimation = false) {
   const center = getCenter();
 
   icons.forEach(icon => {
@@ -50,7 +50,7 @@ function applyRelativePositions() {
     const left = center.x + rel.x * center.x - offsetX;
     const top = center.y + rel.y * center.y - offsetY;
 
-    icon.style.transition = 'none';
+    icon.style.transition = withAnimation ? 'left 0.3s ease, top 0.3s ease' : 'none';
     icon.style.left = `${left}px`;
     icon.style.top = `${top}px`;
     icon.style.opacity = '1';
@@ -59,10 +59,14 @@ function applyRelativePositions() {
 
 window.addEventListener('load', () => {
   requestAnimationFrame(() => {
-    requestAnimationFrame(applyRelativePositions);
+    requestAnimationFrame(() => applyRelativePositions());
   });
 });
-window.addEventListener('resize', applyRelativePositions);
+
+window.addEventListener('resize', () => {
+  icons.forEach(icon => icon.style.transition = 'none');
+  applyRelativePositions();
+});
 
 // 선택 효과
 icons.forEach(icon => {
@@ -153,7 +157,7 @@ if (reset) {
   reset.addEventListener('click', (e) => {
     e.preventDefault();
     localStorage.clear();
-    applyRelativePositions();
+    applyRelativePositions(true);
   });
 }
 
