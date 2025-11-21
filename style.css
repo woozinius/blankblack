@@ -123,6 +123,11 @@ main#desktop {
   outline-offset: 4px;
 }
 
+.finder-item-inner.selected {
+  outline: 2px dotted black;
+  outline-offset: 4px;
+}
+
 .icon a {
   display: flex;
   flex-direction: column;
@@ -178,12 +183,12 @@ main#desktop {
 
 .finder-content {
   flex: 1;
-  padding: 8px;
+  padding: 20px 12px 20px 12px;
   background: #fff;
   overflow-y: auto;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  grid-auto-rows: 90px;
+  grid-auto-rows: 70px;
   column-gap: 16px;
   row-gap: 16px;
 }
@@ -193,6 +198,8 @@ main#desktop {
   font-size: 11px;
   color: #000;
 }
+
+.finder-item-inner { cursor: pointer; }
 
 .finder-item img {
   width: 32px;
@@ -213,9 +220,12 @@ main#desktop {
     bottom: 50px;      /* 푸터 위까지 */
     width: auto;
     height: auto;
+    border-top: 1px solid #000;
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 0;
     border-radius: 0;
     box-shadow: none;
-    border-width: 1px;
   }
 
   .finder-header {
@@ -229,9 +239,9 @@ main#desktop {
   }
 
   .finder-content {
-    padding: 12px;
-    grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3열 그리드 */
-    grid-auto-rows: 100px;
+    padding: 20px 12px 20px 12px;
+    grid-template-columns: repeat(4, minmax(0, 1fr)); /* 4열 그리드 */
+    grid-auto-rows: 80px;
     row-gap: 20px;
     column-gap: 12px;
   }
@@ -245,4 +255,12 @@ main#desktop {
   .finder-item span {
     font-size: 12px;
   }
+}
+
+@media (max-width: 480px) {
+
+  .finder-content {
+    grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3열 그리드 */
+  }
+
 }

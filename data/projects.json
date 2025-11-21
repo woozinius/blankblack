@@ -1,0 +1,36 @@
+{
+  "name": "Projects",
+  "items": [
+    {
+      "type": "folder",
+      "name": "Portfolio",
+      "items": [
+        { "type": "file", "name": "portfolio-overview.md" },
+        {
+          "type": "folder",
+          "name": "Website",
+          "items": [
+            { "type": "file", "name": "index.html" },
+            { "type": "file", "name": "style.css" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "folder",
+      "name": "UI Icons",
+      "items": [
+        { "type": "file", "name": "icon-set-01.png" },
+        { "type": "file", "name": "icon-set-02.png" }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "README.md"
+    },
+    {
+      "type": "file",
+      "name": "todo.txt"
+    }
+  ]
+}

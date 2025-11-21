@@ -1,3 +1,4 @@
+
 // 📦 컨테이너, 아이콘 요소 참조
 const container = document.getElementById('container');
 const icons = document.querySelectorAll('.icon');
@@ -115,10 +116,11 @@ window.addEventListener('load', () => {
 });
 window.addEventListener('resize', () => applyRelativePositions());
 
+/*
 // 🔳 Finder 더미 아이템 생성
 function buildFinderItems(folderKey) {
   finderContent.innerHTML = '';
-  const count = 80; // 아이콘 많은 상태 확인용
+  const count = 10; // 아이콘 많은 상태 확인용
 
   for (let i = 1; i <= count; i++) {
     const item = document.createElement('div');
@@ -130,18 +132,112 @@ function buildFinderItems(folderKey) {
     finderContent.appendChild(item);
   }
 }
+  */
 
-// 🔳 Finder 열기 / 닫기
-function openFinder(icon) {
-  const label = icon.querySelector('span')?.textContent || icon.id;
-  finderTitle.textContent = label;
-  finderPath.textContent = `/${label}`;
-  buildFinderItems(label);
+
+
+
+
+// ---------- Finder: 계층 구조 탐색용 상태 ----------
+let currentRootKey = null;          // projects / study / notes
+let currentNodeStack = [];          // [루트, 하위폴더, ...]
+const finderDataCache = {};         // 루트 JSON 캐시
+
+// 루트 JSON 로드
+async function loadRootData(rootKey) {
+  if (finderDataCache[rootKey]) return finderDataCache[rootKey];
+
+  const res = await fetch(`/data/${rootKey}.json`);
+  const data = await res.json();
+  finderDataCache[rootKey] = data;
+  return data;
+}
+
+// 현재 폴더(node)를 기준으로 Finder 내용 렌더링
+function renderCurrentFolder() {
+  const node = currentNodeStack[currentNodeStack.length - 1];
+  const items = node.items || [];
+
+  // 제목 / 경로
+  const title = node.name || currentRootKey;
+  finderTitle.textContent = title;
+
+  const pathParts = currentNodeStack
+    .map(n => n.name)
+    .filter(Boolean);
+  finderPath.textContent = '/' + pathParts.join('/');
+
+  // 내용 비우기
+  finderContent.innerHTML = '';
+
+  // 상위 폴더로 올라가기 아이템 (루트가 아닐 때만)
+  if (currentNodeStack.length > 1) {
+    const up = document.createElement('div');
+    up.className = 'finder-item';
+    up.innerHTML = `
+      <div class="finder-item-inner" data-type="up">
+        <img src="/icons/folder.png" alt="Up" />
+        <span>..</span>
+      </div>
+    `;
+    up.querySelector('.finder-item-inner').addEventListener('click', () => {
+      currentNodeStack.pop();
+      renderCurrentFolder();
+    });
+    finderContent.appendChild(up);
+  }
+
+  // 실제 아이템 렌더링
+  items.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'finder-item';
+
+    div.innerHTML = `
+      <div class="finder-item-inner" data-type="${item.type}">
+        <img src="${item.type === 'folder' ? '/icons/folder.png' : '/icons/file.png'}" alt="${item.type}" />
+        <span>${item.name}</span>
+      </div>
+    `;
+
+    const inner = div.querySelector('.finder-item-inner');
+
+inner.addEventListener('mousedown', e => {
+  // 선택 처리 (mousedown이 click보다 먼저 실행됨)
+  finderContent.querySelectorAll('.finder-item-inner')
+    .forEach(el => el.classList.remove('selected'));
+  inner.classList.add('selected');
+  e.stopPropagation();
+});
+
+inner.addEventListener('click', e => {
+  if (item.type === 'folder') {
+    currentNodeStack.push(item);
+    renderCurrentFolder();
+  }
+  // 파일 click 동작도 여기서 처리 가능
+  e.stopPropagation();
+});
+
+    finderContent.appendChild(div);
+  });
+}
+
+// ---------- Finder 열기 / 닫기 ----------
+async function openFinder(icon) {
+  const key = icon.id; // projects / study / notes (아이콘 id 기준)
+  currentRootKey = key;
+
+  const rootData = await loadRootData(key);
+  currentNodeStack = [rootData];
+
+  renderCurrentFolder();
   finderWindow.classList.add('open');
 }
 
 function closeFinder() {
   finderWindow.classList.remove('open');
+  currentRootKey = null;
+  currentNodeStack = [];
 }
 
 finderClose.addEventListener('click', closeFinder);
@@ -152,6 +248,9 @@ document.addEventListener('keydown', e => {
     icons.forEach(icon => icon.classList.remove('selected'));
   }
 });
+
+
+
 
 // 아이콘 선택
 icons.forEach(icon => {
@@ -256,4 +355,29 @@ document.getElementById('reset-link')?.addEventListener('click', e => {
 document.getElementById('align-link')?.addEventListener('click', e => {
   e.preventDefault();
   alignTopLeft(true);
+});
+
+// ---------- Finder 내부 아이콘 선택 ----------
+finderContent.addEventListener('click', e => {
+  const target = e.target.closest('.finder-item-inner');
+  if (!target) return;
+
+  // 기존 선택 제거
+  finderContent.querySelectorAll('.finder-item-inner').forEach(el => {
+    el.classList.remove('selected');
+  });
+
+  // 현재 선택
+  target.classList.add('selected');
+
+  e.stopPropagation();
+});
+
+// Finder 외부 클릭 시 선택 해제
+finderWindow.addEventListener('click', e => {
+  if (!e.target.closest('.finder-item-inner')) {
+    finderContent.querySelectorAll('.finder-item-inner').forEach(el => {
+      el.classList.remove('selected');
+    });
+  }
 });
