@@ -1,7 +1,11 @@
 
+
 // 📦 컨테이너, 아이콘 요소 참조
 const container = document.getElementById('container');
-const icons = document.querySelectorAll('.icon');
+// const icons = document.querySelectorAll('.icon');
+const icons = document.querySelectorAll('.icon:not(#trash)');
+const trashIcon = document.getElementById('trash');
+
 const header = document.querySelector('header');
 const footer = document.querySelector('footer');
 
@@ -30,6 +34,54 @@ function getFooterHeight() {
   return footer ? footer.offsetHeight : 0;
 }
 
+function alignTopRight(withAnimation = false) {
+  const margin = 20;
+  const spacingX = 100;
+  const spacingY = 100;
+  const headerHeight = header ? header.offsetHeight : 0;
+  const footerHeight = getFooterHeight();
+  const containerWidth = container.clientWidth;
+  const containerHeight = container.clientHeight;
+
+  // 시작 위치: 우측 상단
+  let x = containerWidth - margin;
+  let y = headerHeight + margin;
+
+  icons.forEach(icon => {
+    const iconWidth = icon.offsetWidth;
+    const iconHeight = icon.offsetHeight;
+
+    const minX = margin; // 왼쪽 최소 여백
+    const maxY = containerHeight - iconHeight - footerHeight - margin;
+
+    // 아래로 꽉 찼으면, 위로 올라가고 왼쪽으로 한 칸 이동
+    if (y > maxY) {
+      y = headerHeight + margin;
+      x -= spacingX;
+    }
+
+    // 오른쪽 기준 정렬: x가 “아이콘 오른쪽”이 되도록 계산
+    let left = x - iconWidth;
+    left = Math.max(minX, left); // 왼쪽으로 너무 나가지 않게 제한
+    const top = Math.min(y, maxY);
+
+    icon.style.transition = withAnimation ? 'left 0.3s ease, top 0.3s ease' : 'none';
+    icon.style.left = `${left}px`;
+    icon.style.top = `${top}px`;
+    icon.style.opacity = '1';
+
+    // 상대 위치 저장(기존 로직 유지)
+    const center = getCenter();
+    const relX = (left + iconWidth / 2 - center.x) / center.x;
+    const relY = (top + iconHeight / 2 - center.y) / center.y;
+    localStorage.setItem(icon.id, JSON.stringify({ x: relX, y: relY }));
+
+    // 다음 아이콘은 아래로
+    y += spacingY;
+  });
+}
+
+/*
 function alignTopLeft(withAnimation = false) {
   const margin = 20;
   const spacingX = 100;
@@ -69,6 +121,7 @@ function alignTopLeft(withAnimation = false) {
     x += spacingX;
   });
 }
+  */
 
 function applyRelativePositions(withAnimation = false) {
   let hasSavedPosition = false;
@@ -105,7 +158,8 @@ function applyRelativePositions(withAnimation = false) {
       icon.style.opacity = '1';
     });
   } else {
-    alignTopLeft(withAnimation);
+    // alignTopLeft(withAnimation);
+    alignTopRight(withAnimation);
   }
 }
 
@@ -354,7 +408,8 @@ document.getElementById('reset-link')?.addEventListener('click', e => {
 
 document.getElementById('align-link')?.addEventListener('click', e => {
   e.preventDefault();
-  alignTopLeft(true);
+  alignTopRight(true);
+  // alignTopLeft(true);
 });
 
 // ---------- Finder 내부 아이콘 선택 ----------

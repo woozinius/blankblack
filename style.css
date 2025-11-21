@@ -45,7 +45,7 @@ header {
   justify-content: space-between;
   align-items: center;
   padding: 0 20px;
-  height: 50px;
+  height: 40px;
   z-index: 1;
   position: relative;
 }
@@ -60,7 +60,7 @@ footer {
   width: 100%;
   font-size: 13px;
   padding: 0 20px;
-  height: 50px;
+  height: 40px;
   box-sizing: border-box;
 }
 
@@ -142,8 +142,8 @@ main#desktop {
   position: absolute;
   top: 80px;
   left: 120px;
-  width: 640px;
-  height: 420px;
+  width: 768px;
+  height: 480px;
   border: 1px solid #000;
   background: #f5f5f5;
   box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
@@ -176,7 +176,8 @@ main#desktop {
 }
 
 .finder-toolbar {
-  padding: 2px 8px;
+  font-size: 11px;
+  padding: 4px 8px;
   background: #eee;
   border-bottom: 1px solid #000;
 }
@@ -214,10 +215,10 @@ main#desktop {
 /* 모바일(가로 768px 이하)일 때 */
 @media (max-width: 768px) {
   .finder-window {
-    top: 50px;         /* 헤더 아래부터 */
+    top: 40px;         /* 헤더 아래부터 */
     left: 0;
     right: 0;
-    bottom: 50px;      /* 푸터 위까지 */
+    bottom: 40px;      /* 푸터 위까지 */
     width: auto;
     height: auto;
     border-top: 1px solid #000;
@@ -229,13 +230,13 @@ main#desktop {
   }
 
   .finder-header {
-    padding: 8px 12px;
-    font-size: 14px;
+    padding: 8px 20px;
+    font-size: 12px;
   }
 
   .finder-toolbar {
-    padding: 4px 12px;
-    font-size: 12px;
+    padding: 6px 20px;
+    font-size: 11px;
   }
 
   .finder-content {
@@ -263,4 +264,14 @@ main#desktop {
     grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3열 그리드 */
   }
 
+}
+
+
+#trash {
+  position: absolute;
+  right: 20px;
+  bottom: 70px; /* footer 위 여백 (footer 높이에 맞춰 조정) */
+  left: auto;
+  top: auto;
+  cursor: pointer;
 }
