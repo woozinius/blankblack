@@ -130,3 +130,119 @@ main#desktop {
   text-decoration: none;
   color: inherit;
 }
+
+/* ---------- Finder window ---------- */
+
+.finder-window {
+  position: absolute;
+  top: 80px;
+  left: 120px;
+  width: 640px;
+  height: 420px;
+  border: 1px solid #000;
+  background: #f5f5f5;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
+  display: none;
+  flex-direction: column;
+  z-index: 10; /* 아이콘보다 위 */
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.finder-window.open {
+  display: flex;
+}
+
+.finder-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  background: #ddd;
+  border-bottom: 1px solid #000;
+}
+
+#finder-close {
+  border: 1px solid #000;
+  background: #f5f5f5;
+  padding: 0 6px;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.finder-toolbar {
+  padding: 2px 8px;
+  background: #eee;
+  border-bottom: 1px solid #000;
+}
+
+.finder-content {
+  flex: 1;
+  padding: 8px;
+  background: #fff;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  grid-auto-rows: 90px;
+  column-gap: 16px;
+  row-gap: 16px;
+}
+
+.finder-item {
+  text-align: center;
+  font-size: 11px;
+  color: #000;
+}
+
+.finder-item img {
+  width: 32px;
+  height: 32px;
+  display: block;
+  margin: 0 auto 4px;
+}
+
+/* 기본: 데스크탑용 Finder (기존 그대로) */
+/* .finder-window {...} 그대로 유지 */
+
+/* 모바일(가로 768px 이하)일 때 */
+@media (max-width: 768px) {
+  .finder-window {
+    top: 50px;         /* 헤더 아래부터 */
+    left: 0;
+    right: 0;
+    bottom: 50px;      /* 푸터 위까지 */
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    box-shadow: none;
+    border-width: 1px;
+  }
+
+  .finder-header {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+
+  .finder-toolbar {
+    padding: 4px 12px;
+    font-size: 12px;
+  }
+
+  .finder-content {
+    padding: 12px;
+    grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3열 그리드 */
+    grid-auto-rows: 100px;
+    row-gap: 20px;
+    column-gap: 12px;
+  }
+
+  .finder-item img {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 6px;
+  }
+
+  .finder-item span {
+    font-size: 12px;
+  }
+}

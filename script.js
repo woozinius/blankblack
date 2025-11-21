@@ -4,6 +4,13 @@ const icons = document.querySelectorAll('.icon');
 const header = document.querySelector('header');
 const footer = document.querySelector('footer');
 
+// 🔳 Finder 요소 참조
+const finderWindow = document.getElementById('finder-window');
+const finderTitle = document.getElementById('finder-title');
+const finderPath = document.getElementById('finder-path');
+const finderContent = document.getElementById('finder-content');
+const finderClose = document.getElementById('finder-close');
+
 function updateTime() {
   const now = new Date();
   document.getElementById('time').textContent = now.toTimeString().split(' ')[0];
@@ -108,6 +115,45 @@ window.addEventListener('load', () => {
 });
 window.addEventListener('resize', () => applyRelativePositions());
 
+// 🔳 Finder 더미 아이템 생성
+function buildFinderItems(folderKey) {
+  finderContent.innerHTML = '';
+  const count = 80; // 아이콘 많은 상태 확인용
+
+  for (let i = 1; i <= count; i++) {
+    const item = document.createElement('div');
+    item.className = 'finder-item';
+    item.innerHTML = `
+      <img src="/icons/folder.png" alt="Folder Icon" />
+      <span>${folderKey} ${String(i).padStart(3, '0')}</span>
+    `;
+    finderContent.appendChild(item);
+  }
+}
+
+// 🔳 Finder 열기 / 닫기
+function openFinder(icon) {
+  const label = icon.querySelector('span')?.textContent || icon.id;
+  finderTitle.textContent = label;
+  finderPath.textContent = `/${label}`;
+  buildFinderItems(label);
+  finderWindow.classList.add('open');
+}
+
+function closeFinder() {
+  finderWindow.classList.remove('open');
+}
+
+finderClose.addEventListener('click', closeFinder);
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeFinder();
+    icons.forEach(icon => icon.classList.remove('selected'));
+  }
+});
+
+// 아이콘 선택
 icons.forEach(icon => {
   icon.addEventListener('click', e => {
     e.preventDefault();
@@ -119,12 +165,8 @@ icons.forEach(icon => {
 document.body.addEventListener('click', () => {
   icons.forEach(icon => icon.classList.remove('selected'));
 });
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    icons.forEach(icon => icon.classList.remove('selected'));
-  }
-});
 
+// 드래그
 icons.forEach(icon => {
   let isDragging = false;
   let hasMoved = false;
@@ -147,7 +189,6 @@ icons.forEach(icon => {
   const duringDrag = (x, y) => {
     if (!isDragging) return;
 
-    const containerRect = container.getBoundingClientRect();
     const iconWidth = icon.offsetWidth;
     const iconHeight = icon.offsetHeight;
     const headerHeight = header ? header.offsetHeight : 0;
@@ -169,8 +210,8 @@ icons.forEach(icon => {
     if (!isDragging) return;
 
     if (!hasMoved) {
-      const href = icon.querySelector('a')?.getAttribute('href');
-      if (href) window.location.href = href;
+      // 🔳 기존: href로 이동 → 변경: Finder 열기
+      openFinder(icon);
     }
 
     const containerRect = container.getBoundingClientRect();
