@@ -1,5 +1,3 @@
-
-
 // 📦 컨테이너, 아이콘 요소 참조
 const container = document.getElementById('container');
 // const icons = document.querySelectorAll('.icon');
@@ -11,6 +9,7 @@ const footer = document.querySelector('footer');
 
 // 🔳 Finder 요소 참조
 const finderWindow = document.getElementById('finder-window');
+const finderHeader = document.querySelector('#finder-window .finder-header');
 const finderTitle = document.getElementById('finder-title');
 const finderPath = document.getElementById('finder-path');
 const finderContent = document.getElementById('finder-content');
@@ -34,6 +33,93 @@ function getFooterHeight() {
   return footer ? footer.offsetHeight : 0;
 }
 
+
+function alignTopRight(withAnimation = false) {
+  const margin = 20;
+  const headerHeight = header ? header.offsetHeight : 0;
+  const footerHeight = getFooterHeight();
+  const containerWidth = container.clientWidth;
+  const containerHeight = container.clientHeight;
+  const center = getCenter();
+
+  const iconsArr = Array.from(icons);
+  const count = iconsArr.length;
+
+  if (count === 0) return;
+
+  // 링당 최대 아이콘 개수
+  const iconsPerRing = 12;
+  const ringSpacing = 110; // 링 사이 간격(px)
+
+  // 각 링에 몇 개씩 들어가는지 계산
+  const ringSizes = [];
+  let remaining = count;
+  while (remaining > 0) {
+    const size = Math.min(iconsPerRing, remaining);
+    ringSizes.push(size);
+    remaining -= size;
+  }
+
+  // 기본 반지름 (컨테이너 크기에 비례)
+  const usableHeight = containerHeight - headerHeight - footerHeight;
+  const baseRadiusX = Math.min(containerWidth, usableHeight) * 0.3;
+  const baseRadiusY = Math.min(containerWidth, usableHeight) * 0.3;
+
+  let ringIndex = 0;
+  let indexInRing = 0;
+
+  iconsArr.forEach(icon => {
+    const iconWidth = icon.offsetWidth;
+    const iconHeight = icon.offsetHeight;
+
+    const itemsInThisRing = ringSizes[ringIndex];
+    const angle = (indexInRing / itemsInThisRing) * Math.PI * 2;
+
+    // 링마다 반지름 증가
+    const radiusX = baseRadiusX + ringIndex * ringSpacing;
+    const radiusY = baseRadiusY + ringIndex * ringSpacing * 0.8;
+
+    // 약간의 랜덤 흔들림
+    const jitterX = (Math.random() - 0.5) * 100; // ±15px
+    const jitterY = (Math.random() - 0.5) * 100;
+
+    // 중앙 기준 타원 위치
+    let left = center.x + Math.cos(angle) * radiusX + jitterX - iconWidth / 2;
+    let top =
+      headerHeight +
+      usableHeight / 2 +
+      Math.sin(angle) * radiusY +
+      jitterY -
+      iconHeight / 2;
+
+    // 컨테이너/헤더/푸터 안으로 클램프
+    const maxX = containerWidth - iconWidth - margin;
+    const maxY = containerHeight - iconHeight - footerHeight - margin;
+
+    left = Math.max(margin, Math.min(left, maxX));
+    top = Math.max(headerHeight + margin, Math.min(top, maxY));
+
+    icon.style.transition = withAnimation ? 'left 0.3s ease, top 0.3s ease' : 'none';
+    icon.style.left = `${left}px`;
+    icon.style.top = `${top}px`;
+    icon.style.opacity = '1';
+
+    // 상대 위치(localStorage 저장용)
+    const c = getCenter();
+    const relX = (left + iconWidth / 2 - c.x) / c.x;
+    const relY = (top + iconHeight / 2 - c.y) / c.y;
+    localStorage.setItem(icon.id, JSON.stringify({ x: relX, y: relY }));
+
+    // 다음 아이콘을 위해 인덱스 증가
+    indexInRing++;
+    if (indexInRing >= itemsInThisRing) {
+      ringIndex++;
+      indexInRing = 0;
+    }
+  });
+}
+
+/*
 function alignTopRight(withAnimation = false) {
   const margin = 20;
   const spacingX = 100;
@@ -80,6 +166,7 @@ function alignTopRight(withAnimation = false) {
     y += spacingY;
   });
 }
+  */
 
 /*
 function alignTopLeft(withAnimation = false) {
@@ -167,8 +254,18 @@ window.addEventListener('load', () => {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => applyRelativePositions());
   });
+
+  // 테스트용 임시 창
+  createWindow({
+    title: 'Test Window',
+    content: '<p>This is a test window.</p>'
+  });
+
+
 });
 window.addEventListener('resize', () => applyRelativePositions());
+
+
 
 /*
 // 🔳 Finder 더미 아이템 생성
@@ -242,38 +339,41 @@ function renderCurrentFolder() {
   }
 
   // 실제 아이템 렌더링
-  items.forEach(item => {
-    const div = document.createElement('div');
-    div.className = 'finder-item';
+items.forEach(item => {
+  const div = document.createElement('div');
+  div.className = 'finder-item';
 
-    div.innerHTML = `
-      <div class="finder-item-inner" data-type="${item.type}">
-        <img src="${item.type === 'folder' ? '/icons/folder.png' : '/icons/file.png'}" alt="${item.type}" />
-        <span>${item.name}</span>
-      </div>
-    `;
+  div.innerHTML = `
+    <div class="finder-item-inner" data-type="${item.type}">
+      <img src="${item.type === 'folder' ? '/icons/folder.png' : '/icons/file.png'}" alt="${item.type}" />
+      <span>${item.name}</span>
+    </div>
+  `;
 
-    const inner = div.querySelector('.finder-item-inner');
+  const inner = div.querySelector('.finder-item-inner');
 
-inner.addEventListener('mousedown', e => {
-  // 선택 처리 (mousedown이 click보다 먼저 실행됨)
-  finderContent.querySelectorAll('.finder-item-inner')
-    .forEach(el => el.classList.remove('selected'));
-  inner.classList.add('selected');
-  e.stopPropagation();
-});
-
-inner.addEventListener('click', e => {
-  if (item.type === 'folder') {
-    currentNodeStack.push(item);
-    renderCurrentFolder();
-  }
-  // 파일 click 동작도 여기서 처리 가능
-  e.stopPropagation();
-});
-
-    finderContent.appendChild(div);
+  // 선택 (mousedown: 선택만)
+  inner.addEventListener('mousedown', e => {
+    finderContent
+      .querySelectorAll('.finder-item-inner')
+      .forEach(el => el.classList.remove('selected'));
+    inner.classList.add('selected');
+    e.stopPropagation();
   });
+
+  // 클릭: 폴더면 하위 폴더로 이동, 파일이면 뷰어 열기
+  inner.addEventListener('click', e => {
+    if (item.type === 'folder') {
+      currentNodeStack.push(item);
+      renderCurrentFolder();
+    } else if (item.type === 'file') {
+      openFile(item);
+    }
+    e.stopPropagation();
+  });
+
+  finderContent.appendChild(div);
+});
 }
 
 // ---------- Finder 열기 / 닫기 ----------
@@ -411,6 +511,268 @@ document.getElementById('align-link')?.addEventListener('click', e => {
   alignTopRight(true);
   // alignTopLeft(true);
 });
+
+
+// ─────────────────────────────
+// Finder 드래그
+// ─────────────────────────────
+if (finderHeader && finderWindow) {
+  let draggingFinder = false;
+  let startX = 0, startY = 0;
+  let originLeft = 0, originTop = 0;
+
+  finderHeader.addEventListener('mousedown', e => {
+    draggingFinder = true;
+
+    const winRect = finderWindow.getBoundingClientRect();
+    const contRect = container.getBoundingClientRect();
+
+    originLeft = winRect.left - contRect.left;
+    originTop  = winRect.top  - contRect.top;
+    startX = e.clientX;
+    startY = e.clientY;
+
+    // 다른 창들과 z-index를 같이 쓰고 싶으면
+    if (windowManager && typeof windowManager.bringToFront === 'function') {
+      windowManager.bringToFront(finderWindow);
+    } else {
+      finderWindow.style.zIndex = 30;
+    }
+
+    e.preventDefault();
+  });
+
+  window.addEventListener('mousemove', e => {
+    if (!draggingFinder) return;
+
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+
+    let newLeft = originLeft + dx;
+    let newTop  = originTop  + dy;
+
+const contRect = container.getBoundingClientRect();
+const winRect  = finderWindow.getBoundingClientRect();
+const footerHeight = getFooterHeight();
+const margin = 0; // 필요 시 조정
+
+const minLeft = 0;
+const minTop  = header ? header.offsetHeight : 0;
+const maxLeft = contRect.width  - winRect.width;
+const maxTop  = contRect.height - footerHeight - winRect.height - margin;
+
+newLeft = Math.max(minLeft, Math.min(newLeft, maxLeft));
+newTop  = Math.max(minTop,  Math.min(newTop,  maxTop));
+
+    finderWindow.style.left = newLeft + 'px';
+    finderWindow.style.top  = newTop  + 'px';
+  });
+
+  window.addEventListener('mouseup', () => {
+    draggingFinder = false;
+  });
+}
+
+finderWindow.addEventListener('mousedown', () => {
+  windowManager.bringToFront(finderWindow);
+});
+
+
+
+
+// ─────────────────────────────
+// 공통 Window 매니저
+// ─────────────────────────────
+
+const windowManager = {
+  nextZ: 20,
+  bringToFront(el) {
+    this.nextZ += 1;
+    el.style.zIndex = this.nextZ;
+  }
+};
+
+/**
+ * 공통 창 생성 함수
+ * @param {Object} options
+ * @param {string} options.title  - 창 제목
+ * @param {number} [options.width=480]
+ * @param {number} [options.height=320]
+ * @param {number} [options.x=80]
+ * @param {number} [options.y=80]
+ * @param {string|Node} [options.content] - 창 안에 넣을 내용
+ */
+function createWindow({ title, width = 480, height = 320, x = 80, y = 80, content = '' }) {
+  const win = document.createElement('div');
+  win.className = 'app-window';
+  win.style.width = width + 'px';
+  win.style.height = height + 'px';
+  win.style.left = x + 'px';
+  win.style.top = y + 'px';
+
+  win.innerHTML = `
+    <div class="app-window-header">
+      <span class="app-window-title">${title}</span>
+      <button class="app-window-close" aria-label="Close">✕</button>
+    </div>
+    <div class="app-window-body"></div>
+  `;
+
+  const bodyEl = win.querySelector('.app-window-body');
+
+  if (typeof content === 'string') {
+    bodyEl.innerHTML = content;
+  } else if (content instanceof Node) {
+    bodyEl.appendChild(content);
+  }
+
+  // 컨테이너 안에 추가
+  container.appendChild(win);
+
+  // 맨 앞으로
+  windowManager.bringToFront(win);
+
+  // 창 클릭 시 맨 앞으로
+  win.addEventListener('mousedown', () => {
+    windowManager.bringToFront(win);
+  });
+
+  // 닫기 버튼
+  const closeBtn = win.querySelector('.app-window-close');
+  closeBtn.addEventListener('click', () => {
+    win.remove();
+  });
+
+  // 드래그
+  const headerEl = win.querySelector('.app-window-header');
+  let dragging = false;
+  let startX = 0, startY = 0;
+  let originLeft = 0, originTop = 0;
+
+  headerEl.addEventListener('mousedown', e => {
+    dragging = true;
+    const rect = win.getBoundingClientRect();
+    const contRect = container.getBoundingClientRect();
+
+    originLeft = rect.left - contRect.left;
+    originTop = rect.top - contRect.top;
+    startX = e.clientX;
+    startY = e.clientY;
+
+    windowManager.bringToFront(win);
+    e.preventDefault();
+  });
+
+  window.addEventListener('mousemove', e => {
+    if (!dragging) return;
+
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+
+    let newLeft = originLeft + dx;
+    let newTop = originTop + dy;
+
+    // 컨테이너 안으로만 제한 (옵션)
+const contRect = container.getBoundingClientRect();
+const winRect = win.getBoundingClientRect();
+const footerHeight = getFooterHeight();
+const margin = 0; // 필요하면 여유 여백
+
+const minLeft = 0;
+const minTop = header ? header.offsetHeight : 0;
+
+// 푸터 영역 위까지만
+const maxLeft = contRect.width - winRect.width;
+const maxTop = contRect.height - footerHeight - winRect.height - margin;
+
+newLeft = Math.max(minLeft, Math.min(newLeft, maxLeft));
+newTop  = Math.max(minTop,  Math.min(newTop,  maxTop));
+
+    win.style.left = newLeft + 'px';
+    win.style.top = newTop + 'px';
+  });
+
+  window.addEventListener('mouseup', () => {
+    dragging = false;
+  });
+
+  return win;
+}
+
+// ─────────────────────────────
+// 파일 뷰어 (fileType 기반)
+// ─────────────────────────────
+
+// 기본: text/markdown → 텍스트 뷰어
+async function openTextViewer(item) {
+  try {
+    const res = await fetch(item.path);
+    const text = await res.text();
+
+    // 간단히 <pre>로 표시 (markdown도 일단 그대로)
+    const escaped = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    createWindow({
+      title: item.name,
+      width: 600,
+      height: 400,
+      content: `<pre style="white-space: pre-wrap; word-break: break-word;">${escaped}</pre>`
+    });
+  } catch (e) {
+    createWindow({
+      title: item.name,
+      content: `<p>파일을 불러오지 못했습니다.<br><code>${item.path}</code></p>`
+    });
+  }
+}
+
+// image → 이미지 뷰어
+function openImageViewer(item) {
+  createWindow({
+    title: item.name,
+    width: 640,
+    height: 480,
+    content: `
+      <div style="display:flex;align-items:center;justify-content:center;height:100%;">
+        <img src="${item.path}" alt="${item.name}"
+             style="max-width:100%;max-height:100%;object-fit:contain;" />
+      </div>
+    `
+  });
+}
+
+// html → iframe 뷰어
+function openHtmlViewer(item) {
+  createWindow({
+    title: item.name,
+    width: 800,
+    height: 500,
+    content: `
+      <iframe src="${item.path}" style="width:100%;height:100%;border:none;"></iframe>
+    `
+  });
+}
+
+// fileType에 따라 위 뷰어로 라우팅
+function openFile(item) {
+  const type = item.fileType || 'text';
+
+  if (type === 'image') {
+    openImageViewer(item);
+  } else if (type === 'html') {
+    openHtmlViewer(item);
+  } else {
+    // text, markdown, 기타 기본은 텍스트 뷰어
+    openTextViewer(item);
+  }
+}
+
+
+
+
 
 // ---------- Finder 내부 아이콘 선택 ----------
 finderContent.addEventListener('click', e => {

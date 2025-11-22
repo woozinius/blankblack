@@ -1,36 +1,95 @@
 {
+  "key": "projects",
   "name": "Projects",
+  "slug": "projects",
+
   "items": [
     {
       "type": "folder",
+      "id": "portfolio",
       "name": "Portfolio",
+      "slug": "portfolio",
+
       "items": [
-        { "type": "file", "name": "portfolio-overview.md" },
+        {
+          "type": "file",
+          "id": "portfolio-overview",
+          "name": "portfolio-overview.md",
+          "slug": "portfolio-overview",
+          "fileType": "markdown",
+          "path": "/content/projects/portfolio/portfolio-overview.md"
+        },
+
         {
           "type": "folder",
+          "id": "website",
           "name": "Website",
+          "slug": "website",
+
           "items": [
-            { "type": "file", "name": "index.html" },
-            { "type": "file", "name": "style.css" }
+            {
+              "type": "file",
+              "id": "website-index",
+              "name": "index.html",
+              "slug": "index",
+              "fileType": "code",
+              "path": "/content/projects/portfolio/website/index.html"
+            },
+            {
+              "type": "file",
+              "id": "website-style",
+              "name": "style.css",
+              "slug": "style",
+              "fileType": "code",
+              "path": "/content/projects/portfolio/website/style.css"
+            }
           ]
         }
       ]
     },
+
     {
       "type": "folder",
+      "id": "ui-icons",
       "name": "UI Icons",
+      "slug": "ui-icons",
+
       "items": [
-        { "type": "file", "name": "icon-set-01.png" },
-        { "type": "file", "name": "icon-set-02.png" }
+        {
+          "type": "file",
+          "id": "ui-icons-01",
+          "name": "icon-set-01.png",
+          "slug": "icon-set-01",
+          "fileType": "image",
+          "path": "/content/projects/ui-icons/icon-set-01.png"
+        },
+        {
+          "type": "file",
+          "id": "ui-icons-02",
+          "name": "icon-set-02.png",
+          "slug": "icon-set-02",
+          "fileType": "image",
+          "path": "/content/projects/ui-icons/icon-set-02.png"
+        }
       ]
     },
+
     {
       "type": "file",
-      "name": "README.md"
+      "id": "readme",
+      "name": "README.md",
+      "slug": "readme",
+      "fileType": "markdown",
+      "path": "/content/projects/README.md"
     },
+
     {
       "type": "file",
-      "name": "todo.txt"
+      "id": "todo",
+      "name": "todo.txt",
+      "slug": "todo",
+      "fileType": "text",
+      "path": "/content/projects/todo.txt"
     }
   ]
 }

@@ -1,0 +1,95 @@
+{
+  "key": "notes",
+  "name": "notes",
+  "slug": "notes",
+
+  "items": [
+    {
+      "type": "folder",
+      "id": "portfolio",
+      "name": "Portfolio",
+      "slug": "portfolio",
+
+      "items": [
+        {
+          "type": "file",
+          "id": "portfolio-overview",
+          "name": "portfolio-overview.md",
+          "slug": "portfolio-overview",
+          "fileType": "markdown",
+          "path": "/content/notes/portfolio/portfolio-overview.md"
+        },
+
+        {
+          "type": "folder",
+          "id": "website",
+          "name": "Website",
+          "slug": "website",
+
+          "items": [
+            {
+              "type": "file",
+              "id": "website-index",
+              "name": "index.html",
+              "slug": "index",
+              "fileType": "code",
+              "path": "/content/notes/portfolio/website/index.html"
+            },
+            {
+              "type": "file",
+              "id": "website-style",
+              "name": "style.css",
+              "slug": "style",
+              "fileType": "code",
+              "path": "/content/notes/portfolio/website/style.css"
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "type": "folder",
+      "id": "ui-icons",
+      "name": "UI Icons",
+      "slug": "ui-icons",
+
+      "items": [
+        {
+          "type": "file",
+          "id": "ui-icons-01",
+          "name": "icon-set-01.png",
+          "slug": "icon-set-01",
+          "fileType": "image",
+          "path": "/content/notes/ui-icons/icon-set-01.png"
+        },
+        {
+          "type": "file",
+          "id": "ui-icons-02",
+          "name": "icon-set-02.png",
+          "slug": "icon-set-02",
+          "fileType": "image",
+          "path": "/content/notes/ui-icons/icon-set-02.png"
+        }
+      ]
+    },
+
+    {
+      "type": "file",
+      "id": "readme",
+      "name": "README.md",
+      "slug": "readme",
+      "fileType": "markdown",
+      "path": "/content/notes/README.md"
+    },
+
+    {
+      "type": "file",
+      "id": "todo",
+      "name": "todo.txt",
+      "slug": "todo",
+      "fileType": "text",
+      "path": "/content/notes/todo.txt"
+    }
+  ]
+}
