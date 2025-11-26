@@ -142,8 +142,8 @@ main#desktop {
   position: absolute;
   top: 80px;
   left: 80px;
-  width: 640px;
-  height: 400px;
+  width: 768px;
+  height: 640px;
   border: 1px solid #000;
   background: #fff;
   box-shadow: 4px 4px 0 #000;
@@ -347,8 +347,8 @@ main#desktop {
   position: absolute;
   top: 80px;
   left: 80px;
-  width: 480px;
-  height: 320px;
+  width: 640px;
+  height: 400px;
   border: 1px solid #000;
   background: #fff;
   box-shadow: 4px 4px 0 #000;
@@ -395,4 +395,29 @@ main#desktop {
   overflow: auto;
   font-size: 13px;
   line-height: 1.4;
+}
+
+
+
+.viewer-text,
+.viewer-code {
+  margin-top:0px;
+  padding: 16px;
+  white-space: pre-wrap;
+  font-family: monospace;
+  font-size: 13px;
+  text-align: justify;
+}
+
+.viewer-image-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.viewer-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }

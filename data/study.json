@@ -1,0 +1,47 @@
+{
+  "name": "Study",
+  "items": [
+    {
+      "type": "folder",
+      "name": "Portfolio",
+      "items": [
+        {
+          "type": "file",
+          "name": "overview.md",
+          "fileType": "text",
+          "path": "/files/projects/portfolio/overview.md"
+        },
+        {
+          "type": "file",
+          "name": "preview.png",
+          "fileType": "image",
+          "path": "/files/projects/portfolio/preview.png"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "README.md",
+      "fileType": "text",
+      "path": "/files/projects/README.md"
+    },
+    {
+      "type": "file",
+      "name": "슛.png",
+      "fileType": "image",
+      "path": "/files/study/슛연습은즐거운것이었다.png"
+    },
+    {
+      "type": "file",
+      "name": "demo.html",
+      "fileType": "html",
+      "path": "/files/study/demo.html"
+    },
+    {
+      "type": "file",
+      "name": "test.txt",
+      "fileType": "text",
+      "path": "/files/study/test.txt"
+    }
+  ]
+}

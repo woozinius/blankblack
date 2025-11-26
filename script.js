@@ -255,12 +255,12 @@ window.addEventListener('load', () => {
     requestAnimationFrame(() => applyRelativePositions());
   });
 
-  // 테스트용 임시 창
+  /* 테스트용 임시 창
   createWindow({
     title: 'Test Window',
     content: '<p>This is a test window.</p>'
   });
-
+*/
 
 });
 window.addEventListener('resize', () => applyRelativePositions());
@@ -386,6 +386,9 @@ async function openFinder(icon) {
 
   renderCurrentFolder();
   finderWindow.classList.add('open');
+
+  // 열릴 때마다 중앙 정렬
+  centerWindowElement(finderWindow);
 }
 
 function closeFinder() {
@@ -602,6 +605,11 @@ const windowManager = {
  * @param {number} [options.y=80]
  * @param {string|Node} [options.content] - 창 안에 넣을 내용
  */
+
+
+
+
+/*
 function createWindow({ title, width = 480, height = 320, x = 80, y = 80, content = '' }) {
   const win = document.createElement('div');
   win.className = 'app-window';
@@ -609,6 +617,22 @@ function createWindow({ title, width = 480, height = 320, x = 80, y = 80, conten
   win.style.height = height + 'px';
   win.style.left = x + 'px';
   win.style.top = y + 'px';
+
+  win.innerHTML = `
+    <div class="app-window-header">
+      <span class="app-window-title">${title}</span>
+      <button class="app-window-close" aria-label="Close">✕</button>
+    </div>
+    <div class="app-window-body"></div>
+  `;
+  */
+
+  
+function createWindow({ title, width = 480, height = 320, x = null, y = null, content = '' }) {
+  const win = document.createElement('div');
+  win.className = 'app-window';
+  win.style.width = width + 'px';
+  win.style.height = height + 'px';
 
   win.innerHTML = `
     <div class="app-window-header">
@@ -626,8 +650,16 @@ function createWindow({ title, width = 480, height = 320, x = 80, y = 80, conten
     bodyEl.appendChild(content);
   }
 
-  // 컨테이너 안에 추가
+  // 컨테이너에 추가
   container.appendChild(win);
+
+  // 중앙 정렬 또는 지정 좌표 배치
+  if (x == null || y == null) {
+    centerWindowElement(win);
+  } else {
+    win.style.left = x + 'px';
+    win.style.top = y + 'px';
+  }
 
   // 맨 앞으로
   windowManager.bringToFront(win);
@@ -651,6 +683,7 @@ function createWindow({ title, width = 480, height = 320, x = 80, y = 80, conten
 
   headerEl.addEventListener('mousedown', e => {
     dragging = true;
+
     const rect = win.getBoundingClientRect();
     const contRect = container.getBoundingClientRect();
 
@@ -672,21 +705,18 @@ function createWindow({ title, width = 480, height = 320, x = 80, y = 80, conten
     let newLeft = originLeft + dx;
     let newTop = originTop + dy;
 
-    // 컨테이너 안으로만 제한 (옵션)
-const contRect = container.getBoundingClientRect();
-const winRect = win.getBoundingClientRect();
-const footerHeight = getFooterHeight();
-const margin = 0; // 필요하면 여유 여백
+    const contRect = container.getBoundingClientRect();
+    const winRect = win.getBoundingClientRect();
+    const footerHeight = getFooterHeight();
+    const margin = 0;
 
-const minLeft = 0;
-const minTop = header ? header.offsetHeight : 0;
+    const minLeft = 0;
+    const minTop = header ? header.offsetHeight : 0;
+    const maxLeft = contRect.width - winRect.width;
+    const maxTop = contRect.height - footerHeight - winRect.height - margin;
 
-// 푸터 영역 위까지만
-const maxLeft = contRect.width - winRect.width;
-const maxTop = contRect.height - footerHeight - winRect.height - margin;
-
-newLeft = Math.max(minLeft, Math.min(newLeft, maxLeft));
-newTop  = Math.max(minTop,  Math.min(newTop,  maxTop));
+    newLeft = Math.max(minLeft, Math.min(newLeft, maxLeft));
+    newTop = Math.max(minTop, Math.min(newTop, maxTop));
 
     win.style.left = newLeft + 'px';
     win.style.top = newTop + 'px';
@@ -699,27 +729,61 @@ newTop  = Math.max(minTop,  Math.min(newTop,  maxTop));
   return win;
 }
 
+
+
+
+// ─────────────────────────────
+// 파일 타입 판별 유틸
+// ─────────────────────────────
+
+// 확장자 기반 기본 매핑
+const FILE_TYPE_BY_EXT = {
+  text: ['txt', 'md', 'markdown', 'log'],
+  image: ['png', 'jpg', 'jpeg', 'gif', 'webp'],
+  html: ['html', 'htm'],
+  code: ['js', 'ts', 'css', 'json']
+};
+
+function detectFileType(name, explicitType) {
+  // JSON에서 명시한 타입이 있으면 그것을 우선 사용
+  if (explicitType) return explicitType;
+
+  const parts = name.split('.');
+  if (parts.length < 2) return 'text'; // 확장자 없으면 기본 text 취급
+
+  const ext = parts.pop().toLowerCase();
+
+  for (const [type, extList] of Object.entries(FILE_TYPE_BY_EXT)) {
+    if (extList.includes(ext)) return type;
+  }
+
+  return 'text'; // 그래도 모르면 텍스트로
+}
+
+// HTML escape 유틸 (여러 뷰어에서 공통 사용)
+function escapeHTML(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;/');
+}
+
 // ─────────────────────────────
 // 파일 뷰어 (fileType 기반)
 // ─────────────────────────────
 
-// 기본: text/markdown → 텍스트 뷰어
 async function openTextViewer(item) {
   try {
     const res = await fetch(item.path);
     const text = await res.text();
 
-    // 간단히 <pre>로 표시 (markdown도 일단 그대로)
-    const escaped = text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
+    const escaped = escapeHTML(text);
 
     createWindow({
       title: item.name,
-      width: 600,
+      width: 640,
       height: 400,
-      content: `<pre style="white-space: pre-wrap; word-break: break-word;">${escaped}</pre>`
+      content: `<pre class="viewer-text">${escaped}</pre>`
     });
   } catch (e) {
     createWindow({
@@ -729,22 +793,19 @@ async function openTextViewer(item) {
   }
 }
 
-// image → 이미지 뷰어
 function openImageViewer(item) {
   createWindow({
     title: item.name,
     width: 640,
     height: 480,
     content: `
-      <div style="display:flex;align-items:center;justify-content:center;height:100%;">
-        <img src="${item.path}" alt="${item.name}"
-             style="max-width:100%;max-height:100%;object-fit:contain;" />
+      <div class="viewer-image-wrap">
+        <img src="${item.path}" alt="${item.name}" class="viewer-image" />
       </div>
     `
   });
 }
 
-// html → iframe 뷰어
 function openHtmlViewer(item) {
   createWindow({
     title: item.name,
@@ -756,21 +817,29 @@ function openHtmlViewer(item) {
   });
 }
 
-// fileType에 따라 위 뷰어로 라우팅
+// 파일 타입 → 뷰어 매핑
+const fileViewers = {
+  text: openTextViewer,
+  image: openImageViewer,
+  html: openHtmlViewer,
+  // code: openCodeViewer,     // 나중에 추가하고 싶으면 여기에만 등록
+  default: openTextViewer
+};
+
 function openFile(item) {
-  const type = item.fileType || 'text';
+  // JSON에서 지정한 fileType + 파일명 기반 자동 판별을 같이 사용
+  const type = detectFileType(item.name, item.fileType);
+  const viewer = fileViewers[type] || fileViewers.default;
 
-  if (type === 'image') {
-    openImageViewer(item);
-  } else if (type === 'html') {
-    openHtmlViewer(item);
-  } else {
-    // text, markdown, 기타 기본은 텍스트 뷰어
-    openTextViewer(item);
-  }
+  // path가 JSON에 없으면 기본 규칙으로 자동 생성 (원하면 사용)
+  const safePath = item.path || `/files/${item.name}`;
+
+  viewer({
+    ...item,
+    fileType: type,
+    path: safePath
+  });
 }
-
-
 
 
 
@@ -798,3 +867,28 @@ finderWindow.addEventListener('click', e => {
     });
   }
 });
+
+
+// ---------- 중앙 정렬 함수 ----------
+function centerWindowElement(el) {
+  if (!el) return;
+
+  const contRect = container.getBoundingClientRect();
+  const rect = el.getBoundingClientRect();
+  const headerHeight = header ? header.offsetHeight : 0;
+  const footerHeight = getFooterHeight();
+
+  const usableHeight = contRect.height - headerHeight - footerHeight;
+
+  let left = (contRect.width - rect.width) / 2;
+  let top  = headerHeight + (usableHeight - rect.height) / 2;
+
+  const maxLeft = contRect.width - rect.width;
+  const maxTop  = contRect.height - footerHeight - rect.height;
+
+  left = Math.max(0, Math.min(left, maxLeft));
+  top  = Math.max(headerHeight, Math.min(top, maxTop));
+
+  el.style.left = left + 'px';
+  el.style.top  = top  + 'px';
+}
