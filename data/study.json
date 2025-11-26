@@ -42,6 +42,12 @@
       "name": "test.txt",
       "fileType": "text",
       "path": "/files/study/test.txt"
+    },
+    {
+      "type": "file",
+      "name": "about",
+      "fileType": "html",
+      "path": "/files/study/about.html"
     }
   ]
 }

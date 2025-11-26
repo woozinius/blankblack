@@ -741,6 +741,7 @@ const FILE_TYPE_BY_EXT = {
   text: ['txt', 'md', 'markdown', 'log'],
   image: ['png', 'jpg', 'jpeg', 'gif', 'webp'],
   html: ['html', 'htm'],
+  markdown:['md', 'markdown'],
   code: ['js', 'ts', 'css', 'json']
 };
 
@@ -765,7 +766,7 @@ function escapeHTML(str) {
   return str
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;/');
+    .replace(/>/g, '&gt;');
 }
 
 // ─────────────────────────────
@@ -817,9 +818,65 @@ function openHtmlViewer(item) {
   });
 }
 
+// Markdown 뷰어
+async function openMarkdownViewer(item) {
+  try {
+    const res = await fetch(item.path);
+    const text = await res.text();
+
+    // 아주 단순한 Markdown → HTML 변환 (라이브러리 없이 최소 구현)
+    // 필요시 나중에 라이브러리(예: marked)로 교체 가능
+    let html = text;
+
+    // 1) HTML escape
+    html = html
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    // 2) 가장 기초적인 변환 (헤더, 굵게, 코드블록 등) – 최소 버전
+    //    나중에 정식 라이브러리로 바꾸는 전단계 정도로 생각하면 됨
+
+    // # Heading
+    html = html.replace(/^###### (.*)$/gm, '<h6>$1</h6>');
+    html = html.replace(/^##### (.*)$/gm, '<h5>$1</h5>');
+    html = html.replace(/^#### (.*)$/gm, '<h4>$1</h4>');
+    html = html.replace(/^### (.*)$/gm, '<h3>$1</h3>');
+    html = html.replace(/^## (.*)$/gm, '<h2>$1</h2>');
+    html = html.replace(/^# (.*)$/gm, '<h1>$1</h1>');
+
+    // * bullet list
+    html = html.replace(/^\s*[-*] (.*)$/gm, '<li>$1</li>');
+    html = html.replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');
+
+    // **bold**
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+    // `inline code`
+    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+    // 빈 줄 기준 단락
+    html = html.replace(/^(?!<h\d>|<ul>|<li>|<\/ul>)(.+)$/gm, '<p>$1</p>');
+
+    createWindow({
+      title: item.name,
+      width: 720,
+      height: 480,
+      content: `<div class="viewer-markdown">${html}</div>`
+    });
+  } catch (e) {
+    createWindow({
+      title: item.name,
+      content: `<p>Markdown 파일을 불러오지 못했습니다.<br><code>${item.path}</code></p>`
+    });
+  }
+}
+
+
 // 파일 타입 → 뷰어 매핑
 const fileViewers = {
   text: openTextViewer,
+  markdown: openMarkdownViewer,
   image: openImageViewer,
   html: openHtmlViewer,
   // code: openCodeViewer,     // 나중에 추가하고 싶으면 여기에만 등록

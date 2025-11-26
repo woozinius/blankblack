@@ -404,6 +404,7 @@ main#desktop {
   margin-top:0px;
   padding: 16px;
   white-space: pre-wrap;
+  overflow-wrap: break-word;
   font-family: monospace;
   font-size: 13px;
   text-align: justify;
@@ -420,4 +421,48 @@ main#desktop {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
+}
+
+
+
+.viewer-markdown {
+  padding: 16px;
+  font-family: monospace;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.viewer-markdown h1,
+.viewer-markdown h2,
+.viewer-markdown h3,
+.viewer-markdown h4,
+.viewer-markdown h5,
+.viewer-markdown h6 {
+  margin: 12px 0 8px;
+  font-weight: bold;
+}
+
+.viewer-markdown p {
+  margin: 6px 0;
+}
+
+.viewer-markdown ul {
+  margin: 6px 0 6px 18px;
+  padding: 0;
+}
+
+.viewer-markdown li {
+  margin: 2px 0;
+}
+
+.viewer-markdown code {
+  background: #f0f0f0;
+  padding: 1px 3px;
+  border-radius: 2px;
+}
+
+.viewer-markdown pre {
+  background: #f5f5f5;
+  padding: 8px;
+  overflow: auto;
 }
